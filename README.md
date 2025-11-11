@@ -31,10 +31,10 @@ cd ragllm
 
 2. Créer un environnement virtuel (recommandé) :
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
 # ou
-venv\Scripts\activate  # Windows
+.venv\Scripts\activate  # Windows
 ```
 
 3. Installer les dépendances :

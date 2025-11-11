@@ -1,22 +1,24 @@
-#import "@preview/polylux:0.3.1": *
-#import themes.simple: *
+// Import des packages, comme dans le premier exemple
+#import "@preview/typslides:1.2.6": *
+#import "@preview/sourcerer:0.2.1": code // Optionnel, mais bonne pratique
 
-#set text(font: "Latin Modern Sans", size: 20pt, lang: "fr")
-#show: simple-theme
+// Configuration du thème, comme dans le premier exemple
+#show: typslides.with(
+  ratio: "16-9",
+  theme: "bluey",
+  font: "Fira Sans",
+  /* language: "fr" // francisation du document */
+)
 
-#title-slide[
-  = Introduction au RAG pour les LLM
-  #v(2em)
-  
-  Retrieval-Augmented Generation
-  
-  #v(1em)
-  Cours M1
-]
+// Page de titre, syntaxe typslides (front-slide)
+#front-slide(
+  title: "Introduction au RAG pour les LLM",
+  subtitle: "Retrieval-Augmented Generation",
+  authors: "Cours M1",
+)
 
-#slide[
-  == Plan du cours
-  
+// Diapositives de contenu, syntaxe typslides (slide(title: ...)[...])
+#slide(title: "Plan du cours")[
   1. Introduction et motivation
   2. Concepts fondamentaux
   3. Architecture d'un système RAG
@@ -27,51 +29,43 @@
   8. Mise en pratique
 ]
 
-#slide[
-  == Qu'est-ce qu'un LLM ?
-  
+#slide(title: "Qu'est-ce qu'un LLM ?")[
   *Large Language Model (LLM)*
-  
+  
   - Modèle de langage pré-entraîné sur d'énormes corpus de texte
   - Capable de générer du texte cohérent
   - Exemples : GPT, LLaMA, Mistral, etc.
-  
+  
   *Limitations :*
   - Connaissance figée au moment de l'entraînement
   - Hallucinations (génération d'informations fausses)
   - Pas d'accès à des données spécifiques ou privées
 ]
 
-#slide[
-  == Le problème
-  
+#slide(title: "Le problème")[
   *Comment donner accès à des informations à jour ou spécifiques ?*
-  
+  
   #v(1em)
-  
+  
   Solutions possibles :
   - Ré-entraîner le modèle ? → Coûteux et lent
   - Fine-tuning ? → Limité, risque de catastrophic forgetting
   - *RAG* → Léger, flexible, efficace !
 ]
 
-#slide[
-  == Qu'est-ce que le RAG ?
-  
+#slide(title: "Qu'est-ce que le RAG ?")[
   *Retrieval-Augmented Generation*
-  
+  
   Technique qui combine :
-  
+  
   1. *Retrieval (Récupération)* : Recherche d'informations pertinentes dans une base de connaissances
-  
+  
   2. *Augmentation* : Enrichissement du contexte du LLM
-  
+  
   3. *Generation* : Production de réponse par le LLM avec le contexte enrichi
 ]
 
-#slide[
-  == Principe de base du RAG
-  
+#slide(title: "Principe de base du RAG")[
   ```
   Question utilisateur
         ↓
@@ -85,9 +79,7 @@
   ```
 ]
 
-#slide[
-  == Architecture générale
-  
+#slide(title: "Architecture générale")[
   #table(
     columns: (1fr, 1fr),
     stroke: none,
@@ -107,132 +99,114 @@
   )
 ]
 
-#slide[
-  == Phase 1 : Indexation
-  
+#slide(title: "Phase 1 : Indexation")[
   *Préparation de la base de connaissances*
-  
+  
   1. *Collecte* : Rassembler les documents (PDF, web, bases de données)
-  
+  
   2. *Découpage* : Diviser en chunks de taille appropriée
-  
+  
   3. *Embedding* : Convertir chaque chunk en vecteur
-  
+  
   4. *Stockage* : Sauvegarder dans une base vectorielle
 ]
 
-#slide[
-  == Qu'est-ce qu'un embedding ?
-  
+#slide(title: "Qu'est-ce qu'un embedding ?")[
   *Représentation vectorielle d'un texte*
-  
+  
   - Transforme du texte en vecteur de nombres réels
   - Capture le sens sémantique
   - Textes similaires → vecteurs proches
-  
+  
   Exemple :
   - "chat" et "félin" → vecteurs proches
   - "chat" et "voiture" → vecteurs éloignés
 ]
 
-#slide[
-  == Modèles d'embedding
-  
+#slide(title: "Modèles d'embedding")[
   *Exemples de modèles populaires :*
-  
+  
   - Sentence-BERT (SBERT)
   - all-MiniLM-L6-v2
   - multilingual-e5-base
   - text-embedding-ada-002 (OpenAI)
-  
+  
   *Caractéristiques importantes :*
   - Dimension du vecteur (384, 768, 1536...)
   - Support multilingue
   - Performance vs vitesse
 ]
 
-#slide[
-  == Le chunking
-  
+#slide(title: "Le chunking")[
   *Découpage des documents en morceaux*
-  
+  
   Stratégies :
   - Par taille fixe (ex: 500 tokens)
   - Par paragraphe ou section
   - Avec chevauchement (overlap)
-  
+  
   Trade-offs :
   - Chunks trop petits → perte de contexte
   - Chunks trop grands → dilution de l'information
 ]
 
-#slide[
-  == Bases de données vectorielles
-  
+#slide(title: "Bases de données vectorielles")[
   *Stockage et recherche de vecteurs*
-  
+  
   Solutions populaires :
   - FAISS (Facebook AI)
   - Chroma
   - Pinecone
   - Weaviate
   - Milvus
-  
+  
   Permettent une recherche efficace par similarité
 ]
 
-#slide[
-  == Mesures de similarité
-  
+#slide(title: "Mesures de similarité")[
   *Comment comparer deux vecteurs ?*
-  
+  
   1. *Similarité cosinus* : Angle entre vecteurs
-     - Valeur entre -1 et 1
-     - Indépendant de la magnitude
-  
+     - Valeur entre -1 et 1
+     - Indépendant de la magnitude
+  
   2. *Distance euclidienne* : Distance géométrique
-  
+  
   3. *Produit scalaire* : Dot product
 ]
 
-#slide[
-  == Phase 2 : Récupération
-  
+#slide(title: "Phase 2 : Récupération")[
   *Recherche de documents pertinents*
-  
+  
   1. Recevoir la question de l'utilisateur
-  
+  
   2. Générer l'embedding de la question
-  
+  
   3. Calculer la similarité avec tous les chunks
-  
+  
   4. Sélectionner les k chunks les plus similaires
-  
+  
   Généralement : k = 3 à 5 documents
 ]
 
-#slide[
-  == Phase 3 : Génération
-  
+#slide(title: "Phase 3 : Génération")[
   *Construction du prompt augmenté*
-  
+  
   ```
   Contexte:
   [Document 1 pertinent]
   [Document 2 pertinent]
   [Document 3 pertinent]
-  
+  
   Question: [Question de l'utilisateur]
-  
-  Réponse: 
+  
+  Réponse: 
   ```
-  
+  
   Le LLM génère une réponse basée sur le contexte fourni
 ]
 
-#slide[
-  == Avantages du RAG
-  
+#slide(title: "Avantages du RAG")[
   - ✓ Accès à des informations à jour
   - ✓ Pas besoin de ré-entraînement
   - ✓ Réduction des hallucinations
@@ -242,6 +216,7 @@
   - ✓ Facilement actualisable
 ]
 
+//#slide(title: "Limites
 #slide[
   == Limites et défis
   
