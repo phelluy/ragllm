@@ -82,16 +82,32 @@ Les slides couvrent :
 ## Technologies utilisées
 
 - **Sentence Transformers** : Pour les embeddings
-- **Transformers** : Pour les modèles HuggingFace
-- **PyTorch** : Backend pour les modèles
+- **PyTorch** : Backend pour les modèles d'embedding
 - **NumPy** : Calculs numériques
+- **Requests** : Pour les appels à l'API REST
 - **Typst** : Système de composition des slides
+
+## Configuration de l'API
+
+Le système RAG utilise une API REST compatible OpenAI pour la génération de réponses.
+
+- **URL par défaut** : `https://127.0.0.1:8080/v1/chat/completions`
+- **Format** : Compatible avec l'API OpenAI Chat Completions
+- **Authentification** : Aucune clé API requise (API locale)
+
+Pour changer l'URL de l'API, vous pouvez :
+```python
+rag = SimpleRAG(api_url="https://autre-serveur:port/v1/chat/completions")
+# ou après l'initialisation :
+rag.configure_api("https://autre-serveur:port/v1/chat/completions")
+```
 
 ## Notes
 
-- Le LLM de génération est optionnel (commenté par défaut) pour économiser la mémoire
-- La première exécution téléchargera les modèles (~100 MB pour l'embedding)
+- La première exécution téléchargera le modèle d'embedding (~100 MB)
 - Les modèles sont mis en cache automatiquement par HuggingFace
+- L'API REST doit être accessible pour la génération de réponses
+- Les embeddings sont calculés localement (pas via l'API)
 
 ## Licence
 
