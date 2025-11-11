@@ -6,7 +6,7 @@ Ce script illustre les concepts fondamentaux du RAG :
 1. Chargement et indexation de documents
 2. Création d'embeddings
 3. Recherche par similarité
-4. Génération de réponse avec un LLM
+4. Génération de réponse avec un LLM via API REST compatible OpenAI
 """
 
 import os
@@ -14,21 +14,27 @@ import glob
 import numpy as np
 from typing import List, Tuple
 from sentence_transformers import SentenceTransformer
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
+import requests
+import json
+import urllib3
+
+# Désactiver les avertissements SSL pour les connexions localhost
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class SimpleRAG:
     """Système RAG minimaliste pour la démonstration"""
     
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = "data", api_url: str = "https://127.0.0.1:8080/v1/chat/completions"):
         """
         Initialise le système RAG
         
         Args:
             data_dir: Répertoire contenant les documents markdown
+            api_url: URL de l'API REST compatible OpenAI
         """
         self.data_dir = data_dir
+        self.api_url = api_url
         self.documents = []
         self.embeddings = []
         
@@ -36,10 +42,8 @@ class SimpleRAG:
         print("Chargement du modèle d'embedding...")
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         
-        # LLM léger pour la génération (optionnel, commenté par défaut)
-        # Décommenter si vous avez assez de mémoire
-        self.llm_tokenizer = None
-        self.llm_model = None
+        # API REST pour la génération (pas de modèle local)
+        self.use_api = True
         
     def load_documents(self) -> None:
         """Charge tous les fichiers markdown du répertoire data"""
@@ -108,10 +112,10 @@ class SimpleRAG:
     
     def generate_response(self, query: str, context_docs: List[dict]) -> str:
         """
-        Génère une réponse basée sur les documents récupérés
+        Génère une réponse basée sur les documents récupérés (mode sans LLM)
         
-        Pour cette démo, on utilise une génération simple sans LLM.
-        En production, on utiliserait un vrai LLM.
+        Méthode de secours qui retourne simplement le contexte formaté.
+        En mode normal, utilisez generate_with_llm() qui appelle l'API REST.
         
         Args:
             query: Question de l'utilisateur
@@ -126,55 +130,42 @@ class SimpleRAG:
             for doc in context_docs
         ])
         
-        # Pour cette démo, on retourne simplement le contexte formaté
-        # En production, on passerait ceci à un LLM
+        # Retourne simplement le contexte formaté
         response = f"""Basé sur les documents suivants, voici des informations pertinentes :
 
 {context}
 
 ---
 Note : Cette réponse est basée sur les {len(context_docs)} documents les plus pertinents trouvés.
-Pour une réponse générée par LLM, décommentez la section d'initialisation du modèle de génération.
+Pour une réponse générée par LLM, assurez-vous que l'API REST est accessible.
 """
         return response
     
-    def load_llm(self, model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0") -> None:
+    def configure_api(self, api_url: str) -> None:
         """
-        Charge un LLM pour la génération (optionnel)
+        Configure l'URL de l'API REST
         
         Args:
-            model_name: Nom du modèle HuggingFace à charger
+            api_url: URL de l'API REST compatible OpenAI
         """
-        print(f"\nChargement du LLM {model_name}...")
-        print("  (Ceci peut prendre quelques minutes la première fois)")
-        
-        self.llm_tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.llm_model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-            device_map="auto" if torch.cuda.is_available() else None,
-            low_cpu_mem_usage=True
-        )
-        
-        print("  → LLM chargé avec succès")
+        self.api_url = api_url
+        print(f"API configurée : {api_url}")
     
     def generate_with_llm(self, query: str, context_docs: List[dict]) -> str:
         """
-        Génère une réponse en utilisant un LLM
+        Génère une réponse en utilisant l'API REST
         
         Args:
             query: Question de l'utilisateur
             context_docs: Documents récupérés
             
         Returns:
-            Réponse générée par le LLM
+            Réponse générée par l'API
         """
-        if self.llm_model is None:
-            return self.generate_response(query, context_docs)
-        
-        # Construction du prompt
+        # Construction du contexte
         context = "\n\n".join([doc['text'] for doc in context_docs])
         
+        # Construction du prompt
         prompt = f"""Basé sur le contexte suivant, réponds à la question de manière concise et précise.
 
 Contexte:
@@ -184,29 +175,39 @@ Question: {query}
 
 Réponse:"""
         
-        # Tokenisation
-        inputs = self.llm_tokenizer(prompt, return_tensors="pt")
-        if torch.cuda.is_available():
-            inputs = {k: v.cuda() for k, v in inputs.items()}
+        # Préparation de la requête pour l'API OpenAI-compatible
+        payload = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.3,
+            "max_tokens": 200,
+            "top_p": 0.9
+        }
         
-        # Génération
-        outputs = self.llm_model.generate(
-            **inputs,
-            max_new_tokens=200,
-            temperature=0.3,
-            do_sample=True,
-            top_p=0.9,
-            pad_token_id=self.llm_tokenizer.eos_token_id
-        )
-        
-        # Décodage
-        response = self.llm_tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        # Extraction de la réponse (après "Réponse:")
-        if "Réponse:" in response:
-            response = response.split("Réponse:")[-1].strip()
-        
-        return response
+        try:
+            # Appel à l'API REST (sans vérification SSL pour localhost)
+            response = requests.post(
+                self.api_url,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                verify=False,  # Pas de vérification SSL pour localhost
+                timeout=30
+            )
+            response.raise_for_status()
+            
+            # Extraction de la réponse
+            result = response.json()
+            if "choices" in result and len(result["choices"]) > 0:
+                return result["choices"][0]["message"]["content"].strip()
+            else:
+                return "Erreur : format de réponse inattendu de l'API"
+                
+        except requests.exceptions.RequestException as e:
+            return f"Erreur lors de l'appel à l'API : {str(e)}"
     
     def interactive_demo(self) -> None:
         """Démo interactive permettant de poser des questions"""
@@ -241,10 +242,8 @@ Réponse:"""
             
             context_docs = [doc for doc, score in results]
             
-            if self.llm_model is not None:
-                response = self.generate_with_llm(query, context_docs)
-            else:
-                response = self.generate_response(query, context_docs)
+            # Toujours utiliser l'API pour la génération
+            response = self.generate_with_llm(query, context_docs)
             
             print(response)
             print("-" * 70)
@@ -264,9 +263,8 @@ def main():
     rag.load_documents()
     rag.create_embeddings()
     
-    # Optionnel : charger un LLM pour la génération
-    # Décommentez la ligne suivante si vous avez assez de ressources
-    # rag.load_llm()
+    # L'API REST est configurée par défaut (https://127.0.0.1:8080/v1/chat/completions)
+    # Pour changer l'URL de l'API, utilisez : rag.configure_api("https://autre-url:port/v1/chat/completions")
     
     # Exemples de requêtes
     print("\n" + "="*70)
