@@ -25,7 +25,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class SimpleRAG:
     """Système RAG minimaliste pour la démonstration"""
     
-    def __init__(self, data_dir: str = "data", api_url: str = "https://127.0.0.1:8080/v1/chat/completions"):
+    def __init__(self, data_dir: str = "data", api_url: str = "http://127.0.0.1:8080/v1/chat/completions"):
         """
         Initialise le système RAG
         
@@ -121,8 +121,7 @@ class SimpleRAG:
             query: Question de l'utilisateur
             context_docs: Documents récupérés
             
-        Returns:
-            Réponse générée
+        Returns:            Réponse générée
         """
         # Construction du contexte
         context = "\n\n".join([
@@ -171,7 +170,7 @@ Pour une réponse générée par LLM, assurez-vous que l'API REST est accessible
 Contexte:
 {context}
 
-Question: {query}
+Question: {query} /no_think
 
 Réponse:"""
         
@@ -183,8 +182,9 @@ Réponse:"""
                     "content": prompt
                 }
             ],
+            #"chat_template_kwargs": {"enable_thinking": False},
             "temperature": 0.3,
-            "max_tokens": 200,
+            "max_tokens": 2000,
             "top_p": 0.9
         }
         
@@ -198,6 +198,7 @@ Réponse:"""
                 timeout=30
             )
             response.raise_for_status()
+            #print("response:", response.json())
             
             # Extraction de la réponse
             result = response.json()
@@ -263,8 +264,8 @@ def main():
     rag.load_documents()
     rag.create_embeddings()
     
-    # L'API REST est configurée par défaut (https://127.0.0.1:8080/v1/chat/completions)
-    # Pour changer l'URL de l'API, utilisez : rag.configure_api("https://autre-url:port/v1/chat/completions")
+    # L'API REST est configurée par défaut (http://127.0.0.1:8080/v1/chat/completions)
+    # Pour changer l'URL de l'API, utilisez : rag.configure_api("http://autre-url:port/v1/chat/completions")
     
     # Exemples de requêtes
     print("\n" + "="*70)
