@@ -261,7 +261,7 @@ def main():
     print("="*70)
     
     # Initialisation du système RAG
-    rag = SimpleRAG(data_dir="data")
+    rag = SimpleRAG(data_dir="data_big")
     
     # Chargement et indexation des documents
     rag.load_documents()
