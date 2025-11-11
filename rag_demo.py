@@ -170,9 +170,12 @@ Pour une réponse générée par LLM, assurez-vous que l'API REST est accessible
 Contexte:
 {context}
 
-Question: {query} /no_think
+Question: {query}
 
 Réponse:"""
+        
+        # Ajouter l'instruction pour désactiver la réflexion si nécessaire
+        #prompt = prompt + " /no_think"
         
         # Préparation de la requête pour l'API OpenAI-compatible
         payload = {
