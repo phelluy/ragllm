@@ -1,4 +1,4 @@
-# René Barjavel La tempête 
+# Auteur: René Barjavel, Titre du roman: La tempête 
 
 ![img-0.jpeg](img-0.jpeg)
 # René Barjavel 

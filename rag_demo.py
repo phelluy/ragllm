@@ -233,7 +233,7 @@ Réponse:"""
             
             # Recherche des documents pertinents
             print("\n🔍 Recherche des documents pertinents...")
-            results = self.search(query, top_k=3)
+            results = self.search(query, top_k=20)
             
             print(f"\n📚 Documents trouvés (top 3):")
             for i, (doc, score) in enumerate(results, 1):
