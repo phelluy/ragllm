@@ -104,7 +104,7 @@ Pauline. - Oui. Elle y avait proposé un roman qu'elle vient de finir. Un chef-d
 Pistole. - Il va paraître?
 Pauline. - Non, il a été refusé. Mais, chez le rédacteur en chef, elle a rencontré M. Montferrand.
 Pistole. - Qu'est-ce que c'est que ça, Montferrand?
-Pauline, avec pitié. - Evidemment! Sorti des machines à écrire, vous ne savez rien.
+Pauline, avec pitié. - Évidemment! Sorti des machines à écrire, vous ne savez rien.
 
 Pistole, vexé. - Mademoiselle...
 Pauline. - Eh bien, c'est un des plus gros financiers de Paris. Le directeur de la Banque de Belgique et de Catalogne.
