@@ -130,8 +130,19 @@ def process_images(markdown, images_dir, pdf_name):
     
     updated_markdown = markdown
     image_counter = 1
+    url_to_local_path = {}  # Cache pour éviter de télécharger la même image plusieurs fois
     
     for alt_text, image_url in image_refs:
+        # Si cette URL a déjà été traitée, réutiliser le chemin local
+        if image_url in url_to_local_path:
+            relative_path = url_to_local_path[image_url]
+            updated_markdown = updated_markdown.replace(
+                f"![{alt_text}]({image_url})",
+                f"![{alt_text}]({relative_path})",
+                1  # Remplacer seulement la première occurrence
+            )
+            continue
+        
         # Déterminer l'extension de l'image depuis l'URL ou utiliser .png par défaut
         parsed_url = urlparse(image_url)
         path_parts = parsed_url.path.split('.')
@@ -146,9 +157,11 @@ def process_images(markdown, images_dir, pdf_name):
         if download_image(image_url, local_image_path):
             # Mettre à jour le lien dans le markdown (chemin relatif)
             relative_path = os.path.join(f"{pdf_name}_images", local_image_name)
+            url_to_local_path[image_url] = relative_path
             updated_markdown = updated_markdown.replace(
                 f"![{alt_text}]({image_url})",
-                f"![{alt_text}]({relative_path})"
+                f"![{alt_text}]({relative_path})",
+                1  # Remplacer seulement la première occurrence
             )
             print(f"  Saved as {relative_path}")
             image_counter += 1
