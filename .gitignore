@@ -43,3 +43,6 @@ Thumbs.db
 # Models and data cache
 models/
 .cache/
+
+# PDF conversion images
+*_images/

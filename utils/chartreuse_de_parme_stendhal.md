@@ -1,6 +1,4 @@
-# FEEDBOOKS 
-
-## LACHARTREUSE DE PARME STENDHAL
+# LECHARTREUSE DE PARME STENDHAL
 # feedbooks 
 
 ## La Chartreuse de Parme
@@ -4267,7 +4265,7 @@ Le comte Mosca avait fait faire une belle traduction, en italien, de la généal
 
 Les seuls instants pendant lesquels Fabrice eut quelque chance de sortir de sa profonde tristesse étaient ceux qu'il passait caché derrière un carreau de, vitre, par lequel il avait fait remplacer un carreau de papier huilé à la fenêtre de son appartement vis-à-vis le palais Contarini, où, comme on sait, Clélia s'était réfugiée; le petit nombre de fois qu'il l'avait vue depuis qu'il était sorti de la citadelle, il avait été profondément affligé d'un changement frappant, et qui lui semblait du plus mauvais augure. Depuis sa faute, la physionomie de Clélia avait pris un caractère de noblesse et de sérieux vraiment remarquable; on eût dit qu'elle avait trente ans. Dans ce changement si extraordinaire, Fabrice aperçut le reflet de quelque ferme résolution."A chaque instant de la journée, se disait-il, elle se jure à elle-même d'être fidèle au voeu qu'elle a fait à la Madone, et de ne jamais me revoir."
 
-Fabrice ne devinait qu'en partie les malheurs de Clélia; elle savait que son père tombé dans une profonde disgrâce, ne pouvait rentrer à Parme et reparaitre à la cour (chose sans laquelle la vie était impossible pour lui) que le jour de son mariage avec le marquis Crescenzi, elle écrivit à son père qu'elle désirait ce mariage. Le général était alors réfugié à Turin, et malade de chagrin. A la vérité, le contrecoup de cette grande résolution avait été de la vieillir de dix ans.
+Fabrice ne devinait qu'en partie les malheurs de Clélia; elle savait que son père tombé dans une profonde disgrâce, ne pouvait rentrer à Parme et reparaître à la cour (chose sans laquelle la vie était impossible pour lui) que le jour de son mariage avec le marquis Crescenzi, elle écrivit à son père qu'elle désirait ce mariage. Le général était alors réfugié à Turin, et malade de chagrin. A la vérité, le contrecoup de cette grande résolution avait été de la vieillir de dix ans.
 
 Elle avait fort bien découvert que Fabrice avait une fenêtre vis-à-vis le palais Contarini; mais elle n'avait eu le malheur de le regarder qu'une fois; dès qu'elle apercevait un air de tête ou une tournure d'homme ressemblant un peu à la sienne, elle fermait les yeux à l'instant. Sa piété profonde et sa confiance dans le secours de la Madone étaient désormais ses seules ressources. Elle avait la douleur de ne pas avoir d'estime pour son père; le caractère de son futur mari lui semblait parfaitement plat et à la hauteur des façons de sentir du grand monde; enfin, elle adorait un homme qu'elle ne devait jamais revoir, et qui pourtant avait des droits sur elle. Cet ensemble de destinée lui semblait le malheur parfait, et nous avouerons qu'elle avait
 raison: Il eût fallu, après son mariage, aller vivre à deux cents lieues de Parme.
