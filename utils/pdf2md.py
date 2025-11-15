@@ -1,3 +1,34 @@
+"""
+Utilitaire de conversion PDF vers Markdown utilisant l'API OCR de Mistral.
+
+Ce script convertit des fichiers PDF en Markdown en utilisant l'API OCR de Mistral.
+Il gère également le téléchargement automatique des images détectées dans les PDF.
+
+Fonctionnalités:
+- Conversion de PDF en Markdown via l'API Mistral OCR
+- Téléchargement automatique des images depuis les serveurs Mistral
+- Organisation des images dans des sous-dossiers dédiés (format: {nom_pdf}_images/)
+- Mise à jour des liens markdown pour référencer les images locales
+
+Usage:
+    python pdf2md.py <dossier>
+
+Exemple:
+    python pdf2md.py ./mon_dossier_pdf
+
+Prérequis:
+- Variable d'environnement MISTRAL_API_KEY définie
+- Fichiers PDF à convertir
+
+Structure de sortie:
+    mon_dossier/
+    ├── document.pdf
+    ├── document.md              # Markdown généré
+    └── document_images/         # Images téléchargées
+        ├── image_001.png
+        ├── image_002.png
+        └── ...
+"""
 import os
 import sys
 import json
