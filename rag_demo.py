@@ -12,38 +12,66 @@ Ce script illustre les concepts fondamentaux du RAG :
 import os
 import glob
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from sentence_transformers import SentenceTransformer
 import requests
 import json
 import urllib3
+
+from llm_providers import get_provider, PROVIDERS
 
 # Désactiver les avertissements SSL pour les connexions localhost
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class SimpleRAG:
-    """Système RAG minimaliste pour la démonstration"""
-    
-    def __init__(self, data_dir: str = "data", api_url: str = "http://127.0.0.1:8080/v1/chat/completions"):
-        """
-        Initialise le système RAG
-        
+    """Système RAG minimaliste pour la démonstration, avec sélection modulaire de provider LLM."""
+
+    def __init__(
+        self,
+        data_dir: str = "data",
+        provider_name: Optional[str] = None,
+        override_model: Optional[str] = None,
+        override_url: Optional[str] = None,
+        api_key: Optional[str] = None,
+    ):
+        """Initialise le système RAG.
+
         Args:
-            data_dir: Répertoire contenant les documents markdown
-            api_url: URL de l'API REST compatible OpenAI
+            data_dir: Répertoire contenant les documents markdown.
+            provider_name: Nom du provider (clé du dictionnaire PROVIDERS). Si None => provider par défaut.
+            override_model: Permet de forcer un nom de modèle différent.
+            override_url: Permet de remplacer l'URL de l'endpoint.
+            api_key: Clé API explicite (sinon variable d'environnement définie dans le provider).
         """
         self.data_dir = data_dir
-        self.api_url = api_url
         self.documents = []
         self.embeddings = []
-        
+
         # Modèle d'embedding léger et performant
         print("Chargement du modèle d'embedding...")
-        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-        
-        # API REST pour la génération (pas de modèle local)
-        self.use_api = True
+        self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+        # Configuration du provider LLM
+        self._provider_cfg = get_provider(
+            name=provider_name,
+            override_model=override_model,
+            override_url=override_url,
+            api_key=api_key,
+        )
+        self.api_url = self._provider_cfg.url
+        self.model = self._provider_cfg.model
+        self.api_key = self._provider_cfg.api_key_env and os.getenv(self._provider_cfg.api_key_env, "") or ""
+        self.use_api = True  # Toujours via API pour la génération
+
+        print(f"Provider sélectionné: {provider_name or self._provider_cfg.name} | URL: {self.api_url} | Modèle: {self.model}")
+        if self._provider_cfg.api_key_env:
+            if not self.api_key:
+                print(
+                    f"⚠️ Clé API manquante pour {self._provider_cfg.name}. Définissez la variable d'environnement '{self._provider_cfg.api_key_env}'."
+                )
+            else:
+                print(f"Clé API chargée depuis '{self._provider_cfg.api_key_env}'.")
         
     def load_documents(self) -> None:
         """Charge tous les fichiers markdown du répertoire data"""
@@ -140,15 +168,39 @@ Pour une réponse générée par LLM, assurez-vous que l'API REST est accessible
 """
         return response
     
-    def configure_api(self, api_url: str) -> None:
-        """
-        Configure l'URL de l'API REST
-        
+    def configure_provider(
+        self,
+        provider_name: str,
+        override_model: Optional[str] = None,
+        override_url: Optional[str] = None,
+        api_key: Optional[str] = None,
+    ) -> None:
+        """Change dynamiquement la configuration du provider LLM.
+
         Args:
-            api_url: URL de l'API REST compatible OpenAI
+            provider_name: Nom du provider dans PROVIDERS.
+            override_model: Surcharge du modèle.
+            override_url: Surcharge de l'URL.
+            api_key: Clé API explicite (prioritaire sur variable d'env).
         """
-        self.api_url = api_url
-        print(f"API configurée : {api_url}")
+        cfg = get_provider(
+            name=provider_name,
+            override_model=override_model,
+            override_url=override_url,
+            api_key=api_key,
+        )
+        self._provider_cfg = cfg
+        self.api_url = cfg.url
+        self.model = override_model or cfg.model
+        self.api_key = api_key if api_key is not None else (cfg.api_key_env and os.getenv(cfg.api_key_env, "") or "")
+        print(f"Provider reconfiguré: {provider_name} | URL: {self.api_url} | Modèle: {self.model}")
+        if cfg.api_key_env:
+            if not self.api_key:
+                print(
+                    f"⚠️ Clé API manquante pour {cfg.name}. Définissez la variable d'environnement '{cfg.api_key_env}'."
+                )
+            else:
+                print(f"Clé API chargée depuis '{cfg.api_key_env}'.")
     
     def generate_with_llm(self, query: str, context_docs: List[dict]) -> str:
         """
@@ -179,26 +231,31 @@ Réponse:"""
         
         # Préparation de la requête pour l'API OpenAI-compatible
         payload = {
+            "model": self.model,
             "messages": [
                 {
                     "role": "user",
-                    "content": prompt
+                    "content": prompt,
                 }
             ],
-            #"chat_template_kwargs": {"enable_thinking": False},
             "temperature": 0.3,
             "max_tokens": 2000,
-            "top_p": 0.9
+            "top_p": 0.9,
         }
         
         try:
             # Appel à l'API REST (sans vérification SSL pour localhost)
+            headers = {"Content-Type": "application/json"}
+            if self.api_key:
+                headers["Authorization"] = f"Bearer {self.api_key}"
+
+            verify_ssl = self.api_url.startswith("https://")
             response = requests.post(
                 self.api_url,
                 json=payload,
-                headers={"Content-Type": "application/json"},
-                verify=False,  # Pas de vérification SSL pour localhost
-                timeout=30
+                headers=headers,
+                verify=verify_ssl,
+                timeout=60,
             )
             response.raise_for_status()
             #print("response:", response.json())
@@ -255,20 +312,27 @@ Réponse:"""
 
 
 def main():
-    """Fonction principale de démonstration"""
-    print("="*70)
+    """Fonction principale de démonstration."""
+    print("=" * 70)
     print("DÉMONSTRATION D'UN SYSTÈME RAG SIMPLE")
-    print("="*70)
-    
-    # Initialisation du système RAG
-    rag = SimpleRAG(data_dir="data_big")
+    print("=" * 70)
+
+    # Sélection optionnelle du provider via variable d'environnement LLM_PROVIDER
+    provider_env = os.getenv("LLM_PROVIDER")  # ex: MISTRAL_LARGE
+    if provider_env and provider_env not in PROVIDERS:
+        print(f"⚠️ Provider '{provider_env}' inconnu. Providers disponibles: {list(PROVIDERS.keys())}")
+        provider_env = None
+
+    # Initialisation du système RAG avec provider modulaire
+    rag = SimpleRAG(data_dir="data_big", provider_name=provider_env)
     
     # Chargement et indexation des documents
     rag.load_documents()
     rag.create_embeddings()
     
-    # L'API REST est configurée par défaut (http://127.0.0.1:8080/v1/chat/completions)
-    # Pour changer l'URL de l'API, utilisez : rag.configure_api("http://autre-url:port/v1/chat/completions")
+    # Pour changer dynamiquement le provider pendant la session :
+    # rag.configure_provider("MISTRAL_LARGE")
+    # rag.configure_provider("PALGANIA_QWEN3", override_model="Qwen3-72B")
     
     # Exemples de requêtes
     print("\n" + "="*70)
