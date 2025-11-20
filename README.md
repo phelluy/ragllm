@@ -53,7 +53,7 @@ pip install -r requirements.txt
 Le notebook `rag_demo.ipynb` est prêt pour Google Colab et ne nécessite aucune installation locale.
 
 **Étapes rapides :**
-1. Ouvrir le notebook dans Colab : [Lien à venir]
+1. Ouvrir le notebook dans Colab
 2. Téléverser vos documents `.md` dans Google Drive
 3. Configurer votre clé API (voir section suivante)
 4. Exécuter les cellules dans l'ordre
@@ -79,9 +79,8 @@ Le notebook `rag_demo.ipynb` est spécialement conçu pour Google Colab avec int
    └── m1_csmi_sgdb/
        └── rag_demo.ipynb
        └── data/
-           ├── introduction_rag.md
-           ├── embeddings.md
-           ├── chunking.md
+           ├── document1.md
+           ├── document2.md
            └── ... (vos autres documents)
    ```
 
@@ -101,7 +100,6 @@ Le notebook utilise par défaut l'API Codestral de Mistral AI (gratuite pour usa
 
 3. **Vérifier les quotas** :
    - Plan gratuit : limites de requêtes/mois
-   - Pour usage intensif : envisager un plan payant
 
 #### 3. Configuration du notebook Colab
 
