@@ -1,40 +1,21 @@
-# FEEDBOOKS 
+Titre du roman: La Chartreuse de Parme
 
-## LACHARTREUSE DE PARME STENDHAL
-# feedbooks 
-
-## La Chartreuse de Parme
-
-Stendhal
+Auteur: Stendhal
 
 Publication: 1839
 Catégorie(s): Fiction, Roman
-Source: http://en.wikisource.org
-# A Propos Stendhal: 
+
+A Propos Stendhal: 
 
 Marie-Henri Beyle (January 23, 1783 - March 23, 1842), better known by his penname Stendhal, was a 19th century French writer. Known for his acute analysis of his characters' psychology, he is considered one of the earliest and foremost practitioners of the realism in his two novels Le Rouge et le Noir (The Red and the Black, 1830) and La Chartreuse de Parme (The Charterhouse of Parma, 1839). Source: Wikipedia
 
-## Disponible sur Feedbooks Stendhal:
+Partie 1
 
-- Le Rouge et le Noir (1830)
-- Armance (1827)
-- Vanina Vanini (1839)
-- L'abbesse de Castro (1839)
-- Le Coffre et le Revenant (1839)
-- La Duchesse de Palliano (1839)
-- Les Cenci (1839)
-- Trop de Faveur Tue (1839)
-- Suora scolastica (1839)
-- San Francesco a Ripa (1839)
-
-Note: This book is brought to you by Feedbooks
-http://www.feedbooks.com
-Strictly for personal use, do not use this file for commercial purposes.
-# Partie 1
 Gia mi fur dolci inviti a empir le carte
 I luoghi ameni.
 Ariost, sat. IV.
-# Chapitre 
+
+Chapitre 01
 
 Milan en 1796
 Le 15 mai 1796, le général Bonaparte fit son entrée dans Milan à la tête de cette jeune armée qui venait de passer le pont de Lodi, et d'apprendre au monde qu'après tant de siècles César et Alexandre avaient un successeur. Les miracles de bravoure et de génie dont l'Italie fut témoin en quelques mois réveillèrent un peuple endormi; huit jours encore avant l'arrivée des Français, les Milanais ne voyaient en eux qu'un ramassis de brigands, habitués à fuir toujours devant les troupes de Sa Majesté Impériale et Royale: c'était du moins ce que leur répétait trois fois la semaine un petit journal grand comme la main, imprimé sur du papier sale.
@@ -114,9 +95,7 @@ La marquise fut émerveillée des grâces de son fils. Mais elle avait conservé
 
 La vie de ce château, peuplé de trente ou quarante domestiques, était fort triste; aussi Fabrice passait-il toutes ses journées à la chasse ou à courir le lac sur une barque. Bientôt il fut étroitement lié avec les cochers et les
 hommes des écuries; tous étaient partisans fous des Français et se moquaient ouvertement des valets de chambre dévots, attachés à la personne du marquis ou à celle de son fils aîné. Le grand sujet de plaisanterie contre ces personnages graves, c'est qu'ils portaient de la poudre à l'instar de leurs maîtres.
-# Chapitre 
-
-## 2
+Chapitre 02
 
 ... Alors que Vesper vient embrunir nos yeux Tout épris d'avenir, je contemple les cieux En qui Dieu nous escrit, par notes non obscures, Les sorts et les destins de toutes créatures. Car lui du fond cieux regardant un humain Parfois mû de pitié, lui montre le chemin; Par les astrcs du ciel qui sont des caractères Les choses nous prédit et bonnes et contraires. Mais les hommes chargés de terre et de trépas Méprisent tel écrit, et ne le lisent pas.
 Ronsard
@@ -259,7 +238,7 @@ Il n'y avait pas une heure que Fabrice avait quitté sa bienfaitrice, lorsque la
 
 Ce jour-là l'armée, qui venait de gagner la bataille de Ligny, était en pleine marche sur Bruxelles, on était à la veille de la bataille de Waterloo. Sur le midi, la pluie à verse continuant toujours, Fabrice entendit le bruit du canon; ce bonheur lui fit oublier tout à fait les affreux moments de désespoir que venait de lui donner cette prison si injuste. Il marcha jusqu'à la nuit très avancée, et comme il commençait à avoir quelque bon sens, il alla prendre son logement dans une maison de paysan fort éloignée de la route. Ce paysan pleurait et prétendait qu'on lui avait tout pris; Fabrice lui donna un
 écu, et il trouva de l'avoine."Mon cheval n'est pas beau, se dit Fabrice, mais n'importe! il pourrait bien se trouver du goût de quelque adjudant", et il alla coucher à l'écurie à ses côtés. Une heure avant le jour le lendemain, Fabrice était sur la route, et, à forcé de caresses, il était parvenu à faire prendre le trot à son cheval. Sur les cinq heures, il entendit la canonnade: c'étaient les préliminaires de Waterloo.
-# Chapitre 
+Chapitre 03
 
 Fabrice trouva bientôt des vivandières, et l'extrême reconnaissance qu'il avait pour la geôlière de B... le porta à leur adresser la parole; il demanda à l'une d'elles où était le 4 c régiment de hussards, auquel il appartenait.
 
@@ -511,7 +490,7 @@ Ce mot dur et le ricanement général qui le suivit accablèrent Fabrice. La gue
 - Marche encore, mon petit, lui dit-elle; tu es donc blessé? et ton beau cheval?
 
 En parlant ainsi elle le conduisait vers sa voiture, où elle le fit monter, en le soutenant par-dessous les bras. A peine dans la voiture, notre héros, excédé de fatigue, s'endormit profondément.
-# Chapitre 
+Chapitre 04
 
 Rien ne put le réveiller, ni les coups de fusil tirés fort près de la petite charrette, ni le trot du cheval que la cantinière fouettait à tour de bras. Le régiment, attaqué à l'improviste par des nuées de cavalerie prussienne, après avoir cru à la victoire toute la journée, battait en retraite, ou plutôt s'enfuyait du côté de la France.
 
@@ -791,7 +770,7 @@ Le maréchal des logis, en accourant de l'auberge, avait vu tomber son colonel, 
 Le hussard blessé par le maréchal des logis mourait.
 
 - Le diable l'emporte! s'écria le colonel, mais, dit-il au maréchal des logis et aux deux autres cavaliers qui accouraient, songez à ce petit jeune homme que j'ai exposé mal à propos. Je vais rester au pont moi-même pour tâcher d'arrêter ces enragés. Conduisez le petit jeune homme à l'auberge et pansez son bras; prenez une de mes chemises.
-# Chapitre 
+Chapitre 05
 
 Toute cette aventure n'avait pas duré une minute; les blessures de Fabrice n'étaient rien; on lui serra le bras avec des bandes taillées dans la chemise du colonel. On voulait lui arranger un lit au premier étage de l'auberge:
 
@@ -1030,7 +1009,7 @@ Fabrice n'avait nulle envie de conspirer: il aimait Napoléon, et, en sa qualit�
 son cheval et de son journal que de sa maîtresse bien pensante. Mais il n'y avait pas encore de place pour l'imitation des autres dans cette âme naïve et ferme, et il ne fit pas d'amis dans la société du gros bourg de Romagnano; sa simplicité passait pour de la hauteur; on ne savait que dire de ce caractère.
 
 - C'est un cadet mécontent de n'être pas aîné dit le curé.
-# Chapitre 
+Chapitre 06
 
 Nous avouerons avec sincérité que la jalousie du chanoine Borda n'avait pas absolument tort, à son retour de France, Fabrice parut aux yeux de la comtesse Pietranera comme un bel étranger qu'elle eût beaucoup connu jadis. S'il eût parlé d'amour, elle l'eût aimé; n'avait-elle pas déjà pour sa conduite et sa personne une admiration passionnée et pour ainsi dire sans bornes? Mais Fabrice l'embrassait avec une telle effusion d'innocente reconnaissance et de bonne amitié qu'elle se fût fait horreur à elle-même si elle eût cherché un autre sentiment dans cette amitié presque filiale."Au fond, se disait la comtesse, quelques amis qui m'ont connue, il y a six ans, à la cour du prince Eugène, peuvent encore me trouver jolie et même jeune, mais pour lui je suis une femme respectable... et, s'il faut tout dire sans nul ménagement pour mon amour-propre, une femme âgée."La comtesse se faisait illusion sur l'époque de la vie où elle était arrivée, mais ce n'est pas à la façon des femmes vulgaires."A son âge, d'ailleurs, ajoutait-elle, on s'exagère un peu les ravages du temps; un homme plus avancé dans la vie... "
 
@@ -1312,7 +1291,7 @@ Aussitôt les personnes qui se trouvaient auprès de la duchesse s'éloignèrent
 Ce prince n'était point un méchant homme, quoi qu'en pussent dire les libéraux d'Italie. A la vérité, il avait fait jeter dans les prisons un assez bon nombre d'entre eux, mais c'était par peur, et il répétait quelquefois comme pour se consoler de certains souvenirs: Il vaut mieux tuer le diable que si le diable nous tue. Le lendemain de la soirée dont nous venons de parler, il était tout joyeux, il avait fait deux belles actions: aller au jeudi et parler à sa femme. A dîner, il lui adressa la parole, en un mot, ce jeudi de Mme Sanseverina amena une révolution d'intérieur dont tout Parme retentit; la Raversi fut consternée, et la duchesse eut une double joie: elle avait pu être utile à son amant et l'avait trouvé plus épris que Jamais.
 
 - Tout cela à cause d'une idée bien imprudente qui m'est venue! disait-elle au comte. Je serais plus libre sans doute à Rome ou à Naples, mais y trouverais-je un jeu aussi attachant? Non, en vérité, mon cher comte, et vous faites mon bonheur.
-# Chapitre 
+Chapitre 07
 
 C'est de petits détails de cour aussi insignifiants que celui que nous venons de raconter qu'il faudrait remplir l'histoire des quatre années qui suivirent. Chaque printemps, la marquise venait avec ses filles passer deux mois au palais Sanseverina ou à la terre de Sacca, aux bords du Pô, il y avait des moments bien doux, et l'on parlait de Fabrice; mais le comte ne voulut jamais lui permettre une seule visite à Parme. La duchesse et le ministre eurent bien à réparer quelques étourderies, mais en général Fabrice suivait assez sagement la ligne de conduite qu'on lui avait indiquée: un grand seigneur qui étudie la théologie et qui ne compte point absolument sur sa vertu pour faire son avancement. A Naples, il s'était pris d'un goût très vif pour l'étude de l'antiquité, il faisait des fouilles '; cette passion avait presque remplacé celle des chevaux. Il avait vendu ses chevaux anglais pour continuer des fouilles à Misène, où il avait trouvé un buste de Tibère, jeune encore, qui avait pris rang parmi les plus beaux restes de l'antiquité. La découverte de ce buste fut presque le plaisir le plus vif qu'il eût rencontré à Naples. Il avait l'âme trop haute pour chercher à imiter les autres jeunes gens, et, par exemple, pour vouloir jouer avec un certain sérieux le rôle d'amoureux. Sans doute il ne manquait point de maîtresses, mais elles n'étaient pour lui d'aucune conséquence, et, malgré son âge, on pouvait dire de lui qu'il ne connaissait point l'amour; il n'en était que plus aimé. Rien ne l'empêchait d'agir avec le plus beau sang-froid, car pour lui une femme jeune et jolie était toujours l'égale d'une autre femme jeune et jolie; seulement la dernière connue lui semblait la plus piquante. Une des dames les plus admirées à Naples avait fait des folies en son honneur pendant la dernière année de son séjour, ce qui d'abord l'avait amusé, et avait fini par l'excéder d'ennui, tellement qu'un des bonheurs de son départ fut d'être délivré des attentions de la charmante duchesse d'A... Ce fut en 1821, qu'ayant subi passablement tous ses examens, son directeur d'études ou gouverneur eut une croix et un cadeau, et lui partit pour voir enfin cette ville
 de Parme à laquelle il songeait souvent. Il était Monsignore, et il avait quatre chevaux à sa voiture; à la poste avant Parme, il n'en prit que deux, et dans la ville fit arrêter devant l'église de Saint-Jean. Là se trouvait le riche tombeau de l'archevêque Ascagne del Dongo, son arrière-grand-oncle, l'auteur de la Généalogie latine. Il pria auprès du tombeau, puis arriva à pied au palais de la duchesse qui ne l'attendait que quelques jours plus tard. Elle avait grand monde dans son salon, bientôt on la laissa seule.
@@ -1470,7 +1449,7 @@ ce qui peut déplaire; mais tout est préférable au rôle affreux de l'homme qu
 Ce qu'il y avait de cruel au milieu de toutes ces pensées, c'est que réellement Fabrice aimait la duchesse de bien loin plus qu'aucun être au monde."Il faut être bien maladroit, se disait-il avec colère, pour tant redouter de ne pouvoir persuader ce qui est si vrai!"Manquant d'habileté pour se tirer de cette position, il devint sombre et chagrin."Que serait-il de moi, grand Dieu! si je me brouillais avec le seul être au monde pour qui j'aie un attachement passionné?"D'un autre côté, Fabrice ne pouvait se résoudre à gâter un bonheur si délicieux par un mot indiscret. Sa position était si remplie de charmes! L'amitié intime d'une femme si aimable et si jolie était si douce! Sous les rapports plus vulgaires de la vie, la protection lui faisait une position si agréable à cette cour, dont les grandes intrigues, grâce à elle qui les lui expliquait, l'amusaient comme une comédie!"Mais au premier moment je puis être réveillé par un coup de foudre! se disait-il. Ces soirées si gaies, si tendres, passées presque en tête à tête avec une femme si piquante, si elles conduisent à quelque chose de mieux, elle croira trouver en moi un amant; elle me demandera des transports de la folie, et je n'aurai toujours à lui offrir que l'amitié la plus vive, mais sans amour; la nature m'a privé de cette sorte de folie sublime. Que de reproches n'ai-je pas eu à essayer à cet égard! Je crois encore entendre la duchesse d'A ${ }^{* * *}$, et je me moquais de la duchesse! Elle croira que je manque d'amour pour elle, tandis que c'est l'amour qui manque en moi; Jamais elle ne voudra me comprendre. Souvent à la suite d'une anecdote sur la cour contée par elle avec cette grâce cette folie qu'elle seule au monde possède, et d'ailleurs nécessaire à mon instruction, je lui baise les mains et quelquefois la joue. Que devenir si cette main presse la mienne d'une certaine façon?"
 
 Fabrice paraissait chaque jour dans les maisons les plus considérées et les moins gaies de Parme. Dirigé par les conseils habiles de la duchesse, il faisait une cour savante aux deux princes père et fils, à la princesse ClaraPaolina et à Mgr l'archevêque. Il avait des succès, mais qui ne le consolaient point de la peur mortelle de se brouiller avec la duchesse.
-# Chapitre 
+Chapitre 08
 
 Ainsi moins d'un mois seulement après son arrivée à la cour, Fabrice avait tous les chagrins d'un courtisan, et l'amitié intime qui faisait le bonheur de sa vie était empoisonnée. Un soir, tourmenté par ces idées, il sortit de ce salon de la duchesse où il avait trop l'air d'un amant régnant; errant au hasard dans la ville, il passa devant le théâtre qu'il vit éclairé; il entra. C'était une imprudence gratuite chez un homme de sa robe et qu'il s'était bien promis d'éviter à Parme, qui après tout n'est qu'une petite ville de quarante mille habitants. Il est vrai que dès les premiers jours il s'était affranchi de son costume officiel, le soir, quand il n'allait pas dans le très grand monde, il était simplement vêtu de noir comme un homme en deuil.
 
@@ -1557,7 +1536,7 @@ L'abbé se jeta dans ses bras à diverses reprises; il le serra avec une extrêm
 
 - Tâche de t'arranger au milieu de mes instruments pour dormir un peu commodément prends mes pelisses; tu en trouveras plusieurs dé grand prix que la duchesse Sanseverina me fit parvenir il y a quatre ans. Elle me demanda une prédiction sur ton compte, que je me gardai bien de lui envoyer, tout en gardant ses pelisses et son beau quart de cercle. Toute annonce de l'avenir est une infraction à la règle, et à ce danger qu'elle peut changer l'événement, auquel cas toute la science tombe par terre comme un véritable jeu d'enfant et d'ailleurs il y avait des choses dures à dire à cette duchesse toujours si jolie. A propos, ne sois point effrayé dans ton sommeil par les cloches qui vont faire un tapage effroyable à côté de ton oreille, lorsque l'on va sonner la messe de sept heures; plus tard, à l'étage inférieur, ils vont mettre en branle le gros bourdon qui secoue tous mes instruments. C'est aujourd'hui la saint Giovita martyr et soldat'. Tu sais le petit village de Grianta a le même patron que la grande ville de Brescia, ce qui, par parenthèse, trompa d'une façon bien plaisante mon illustre maître Jacques Marini de Ravenne. Plusieurs fois il m'annonça que je ferais une assez belle fortune ecclésiastique, il croyait que je serais curé de la magnifique église de Saint-Giovita, à Brescia, j'ai été curé d'un petit village de sept cent cinquante feux! Mais tout a été pour le mieux. J'ai vu, il n'y a pas dix ans de cela, que si j'eusse été curé à Brescia, ma destinée était d'être mis en prison sur une colline de la Moravie. au Spielberg. Demain je t'apporterai toutes sortes de mets délicats volés au grand dîner que je donne à tous les curés des environs qui viennent chanter à ma grand-messe. Je les apporterai en bas, mais ne cherche point à me voir, ne descends pour te mettre en possession de ces bonnes choses que lorsque tu m'auras entendu ressortir. Il ne faut pas que tu me revoies de jour, et le soleil se couchant demain à sept heures et vingt-sept minutes, je ne viendrai t'embrasser que vers les huit heures, et il faut que tu partes pendant que les heures se comptent encore par neuf, c'est-à-dire avant que l'horloge ait sonné dix heures. Prends garde que l'on ne te voie aux fenêtres du clocher: les gendarmes ont ton signalement et ils sont en quelque sorte sous les ordres de ton frère qui est un fameux tyran. Le marquis del Dongo s'affaiblit, ajouta Blanès d'un air triste, et s'il te revoyait peut-être te donnerait-il quelque chose de la main à la main. Mais de tels avantages entachés de fraude ne conviennent point à un homme tel que toi, dont la force sera un jour dans sa conscience. Le
 marquis abhorre son fils Ascagne, et c'est à ce fils qu'échoieront les cinq ou six millions qu'il possède. C'est justice. Toi, à sa mort, tu auras une pension de quatre mille francs, et cinquante aunes de drap noir pour le deuil de tes gens.
-# Chapitre 
+Chapitre 09
 
 L'âme de Fabrice était exaltée par les discours du vieillard, par la profonde attention et par l'extrême fatigue. Il eut grand-peine à s'endormir, et son sommeil fut agité de songes, peut-être présages de l'avenir; le matin, à dix heures, il fut réveillé par le tremblement général du clocher, un bruit effroyable semblait venir du dehors. Il se leva éperdu, et se crut à la fin du monde, puis il pensa qu'il était en prison; il lui fallut du temps pour reconnaître le son de la grosse cloche que quarante paysans mettaient en mouvement en l'honneur du grand saint Giovita, dix auraient suffi.
 
@@ -1608,7 +1587,7 @@ Fabrice n'avait pas fait une lieue, qu'une bande éclatante de blancheur dessina
 "Voilà qui est d'un bon augure!"se dit Fabrice. Cet air qu'il écoutait religieusement lui ôta la petite pointe de colère qui commençait à se mêler à ses raisonnements. Il regarda attentivement la grande route des deux côtés, il n'y vit personne.
 "Le chanteur arrivera par quelque chemin de traverse", se dit-il. Presque au même instant, il vit un valet de chambre très proprement vêtu à l'anglaise, et monté sur un cheval de suite, qui s'avançait au petit pas en tenant en main un beau cheval de race, peut-être un peu trop maigre.
 "Ah! si je raisonnais comme Mosca, se dit Fabrice, lorsqu'il me répète que les dangers que court un homme sont toujours la mesure de ses droits sur le voisin, je casserais la tête d'un coup de pistolet à ce valet de chambre, et, une fois monté sur le cheval maigre, je me moquerais fort de tous les gendarmes du monde. A peine de retour à Parme, j'enverrais de l'argent à cet homme ou à sa veuve... mais ce serait une horreur!"
-# Chapitre 
+Chapitre 10
 
 Tout en se faisant la morale, Fabrice sautait sur la grande route qui de Lombardie va en Suisse: en ce lieu, elle est bien à quatre ou cinq pieds en contrebas de la forêt. $<<$ Si mon homme prend peur, se dit Fabrice, il part d'un temps de galop, et je reste planté là faisant la vraie figure d'un nigaud."En ce moment, il se trouvait à dix pas du valet de chambre qui ne chantait plus: il vit dans ses yeux qu'il avait peur; il allait peut-être retourner ses chevaux. Sans être encore décidé à rien, Fabrice fit un saut et saisit la bride du cheval maigre.
 
@@ -1657,7 +1636,7 @@ Fabrice courut au palais archiépiscopal; il y fut simple et modeste, c'était u
 "Cette prison où j'allais m'engloutir, si le cheval eût bronché, était-elle la prison dont je suis menacé par tant de présages?"
 
 Cette question était de la dernière importance pour lui, et l'archevêque fut content de son air de profonde attention.
-# Chapitre 
+Chapitre 11
 
 Au sortir de l'archevêché, Fabrice courut chez la petite Marietta; il entendit de loin la grosse voix de Giletti qui avait fait venir du vin et se régalait avec le souffleur et les moucheurs de chandelle, ses amis. La mammacia, qui faisait fonctions de mère, répondit seule à son signal.
 
@@ -1929,7 +1908,7 @@ et ne valaient pas la peine d'être écrits; le singulier, c'est que cet ex-coch
 - On se moque de moi quand je prête mon cahier, disait Ludovic; mais si Votre Excellence daignait me dicter l'orthographe des mots lettre à lettre, les envieux ne sauraient plus que dire: l'orthographe ne fait pas le génie.
 
 Ce ne fut que le surlendemain dans la nuit que Fabrice put débarquer en toute sûreté dans un bois de vernes, une lieue avant que d'arriver à Ponte Lago Oscuro. Toute la journée il resta caché dans une chènevière, et Ludovic le précéda à Ferrare; il y loua un petit logement chez un juif pauvre, qui comprit tout de suite qu'il y avait de l'argent à gagner si l'on savait se taire. Le soir, à la chute du jour, Fabrice entra dans Ferrare monté sur un petit cheval; il avait bon besoin de ce secours, la chaleur l'avait frappé sur le fleuve; le coup de couteau qu'il avait à la cuisse, et le coup d'épée que Giletti lui avait donné dans l'épaule, au commencement du combat, s'étaient enflammés et lui donnaient de la fièvre.
-# Chapitre 
+Chapitre 12
 
 Le juif, maître du logement, avait procuré un chirurgien discret, lequel, comprenant à son tour qu'il y avait de l'argent dans la bourse dit à Ludovic que sa conscience l'obligeait à faire son rapport à la police sur les blessures du jeune homme que lui, Ludovic, appelait son frère.
 
@@ -2039,7 +2018,7 @@ Fabrice lui raconta son histoire.
 - Grand Dieu! vous avez été à Ferrare! Moi qui vous y ai tant cherché! Vous saurez que je me suis brouillée avec la vieille femme parce qu'elle voulait me conduire à Venise, où je savais bien que vous n'iriez jamais, puisque vous êtes sur la liste noire de l'Autriche. J'ai vendu mon collier d'or pour venir à Bologne, un pressentiment m'annonçait le bonheur que j'ai de vous y rencontrer; la vieille femme est arrivée deux jours après moi. Ainsi, je ne vous engagerai point à venir chez nous, elle vous ferait encore de ces vilaines demandes d'argent qui me font tant de honte. Nous avons vécu fort convenablement depuis le jour fatal que vous savez et nous n'avons pas dépensé le quart de ce que vous lui donnâtes. Je ne voudrais pas aller vous voir à l'auberge du Pellegrino, ce serait une publicité. Tâchez de louer une petite chambre dans une rue déserte, et à l'Ave Maria (la tombée de la nuit), je me trouverai ici, sous ce même portique.
 
 Ces mots dits, elle prit la fuite.
-# Chapitre 
+Chapitre 13
 
 Toutes les idées sérieuses furent oubliées à l'apparition imprévue de cette aimable personne. Fabrice se mit à vivre à Bologne dans une joie et une sécurité profondes. Cette disposition naïve à se trouver heureux de tout ce qui remplissait sa vie perçait dans les lettres qu'il adressait à la duchesse; ce fut au point qu'elle en prit de l'humeur. A peine si Fabrice le remarqua, seulement il écrivit en signes abrégés sur le cadran de sa montre: "Quand j'écris à la D. ne jamais dire quand j'étais prélat, quand j'étais homme d'église cela la fâche."Il avait acheté deux petits chevaux dont il était fort content: il les attelait à une calèche de louage toutes les fois que la petite Marietta voulait aller voir quelqu'un de ces sites ravissants des environs de Bologne; presque tous les soirs il la conduisait à la chute du Reno. Au retour, il s'arrêtait chez l'aimable Crescentini, qui se croyait un peu le père de la Marietta.
 "Ma foi! si c'est là la vie de café qui me semblait si ridicule pour un homme de quelque valeur, j'ai eu tort de la repousser", se disait Fabrice. Il oubliait qu'il n'allait jamais au café que pour lire Le Constitutionnel', et que, parfaitement inconnu à tout le beau monde de Bologne, les jouissances de vanité n'entraient pour rien dans sa félicité présente. Quand il n'était pas avec la petite Marietta, on le voyait à l'Observatoire, où il suivait un cours d'astronomie, le professeur l'avait pris en grande amitié et Fabrice lui prêtait ses chevaux le dimanche pour aller briller avec sa femme au Corso de la Montagnola.
@@ -2238,9 +2217,11 @@ beaucoup d'épée dans la poitrine, qui le retint au lit plusieurs mois. Ludovic
 Fabrice se sauva dans Florence; comme il s'était tenu caché à Bologne, ce fut à Florence seulement qu'il reçut toutes les lettres de reproches de la duchesse; elle ne pouvait lui pardonner d'être venu à son concert et de ne pas avoir cherché à lui parler. Fabrice fut ravi des lettres du comte Mosca, elles respiraient une franche amitié et les sentiments les plus nobles. Il devina que le comte avait écrit à Bologne, de façon à écarter les soupçons qui pouvaient peser sur lui relativement au duel; la police fut d'une justice parfaite: elle constata que deux étrangers, dont l'un seulement, le blessé, était connu (le comte $\mathrm{M}^{* * *}$ ), s'étaient battus à l'épée, devant plus de trente paysans, au milieu desquels se trouvait vers la fin du combat le curé du village qui avait fait de vains efforts pour séparer les duellistes. Comme le nom de Joseph Bossi n'avait point été prononcé, moins de deux mois après, Fabrice osa revenir à Bologne, plus convaincu que jamais que sa destinée le condamnait à ne jamais connaître la partie noble et intellectuelle de l'amour. C'est ce qu'il se donna le plaisir d'expliquer fort au long à la duchesse; il était bien las de sa vie solitaire et désirait passionnément alors retrouver les charmantes soirées qu'il passait entre le comte et sa tante. Il n'avait pas revu depuis eux les douceurs de la bonne compagne.
 
 Je me suis tant ennuyé à propos de l'amour que je voulais me donner et de la Fausta, écrivait-il à la duchesse, que maintenant son caprice me fût-il encore favorable, je ne ferais pas vingt lieues pour aller la sommer de sa parole; ainsi ne crains pas, comme tu me le dis, que j'aille jusqu'à Paris où je vois qu'elle débute avec un succès fou. Je ferais toutes les lieues possibles pour passer une soirée avec toi et avec ce comte si bon pour ses amis.
-# Partie 2
+
+Partie 2
+
 Par ses cris continuels, cette république nous empêcherait de jouir de la meilleure des monarchies. (Chap. xxiii.)
-# Chapitre 
+Chapitre 14
 
 Pendant que Fabrice était à la chasse de l'amour dans un village voisin de Parme, le fiscal général Rassi, qui ne le savait pas si près de lui, continuait à traiter son affaire comme s'il eût été un libéral: il feignit de ne pouvoir trouver, ou plutôt intimida les témoins à décharge; et enfin, après un travail fort savant de près d'une année, et environ deux mois après le dernier retour de Fabrice à Bologne, un certain vendredi, la marquise Raversi, ivre de joie, dit publiquement dans son salon que, le lendemain, la sentence qui venait d'être rendue depuis une heure contre le petit del Dongo serait présentée à la signature du prince et approuvée par lui. Quelques minutes plus tard la duchesse sut ce propos de son ennemie."Il faut que le comte soit bien mal servi par ses agents! se dit-elle; encore ce matin il croyait que la sentence ne pouvait être rendue avant huit jours. Peut-être ne serait-il pas fâché d'éloigner de Parme mon jeune grand vicaire; mais, ajouta-t-elle en chantant, nous le verrons revenir, et un jour il sera notre archevêque."La duchesse sonna:
 
@@ -2487,7 +2468,7 @@ du Parmesan qu'on lui avait dit exister dans le pays, il rencontra enfin le pode
 
 - On pourrait craindre, ajouta Riscara d'un air froid, que ses nombreux amis qui le cherchaient avant-hier pour favoriser son passage à travers les Etats de Son Altesse Sérénissime ne rencontrent les gendarmes; ces rebelles étaient bien douze ou quinze à cheval.
 - Intelligenti pauca! s'écria le podestat d'un air malin.
-# Chapitre 
+Chapitre 15
 
 Deux heures plus tard, le pauvre Fabrice, garni de menottes et attaché par une longue chaîne à la sediola même dans laquelle on l'avait fait monter, partait pour la citadelle de Parme, escorté par huit gendarmes. Ceux-ci avaient l'ordre d'emmener avec eux tous les gendarmes stationnés dans les villages que le cortège devait traverser, le podestat lui-même suivait ce prisonnier d'importance. Sur les sept heures après midi, la sediola, escortée par tous les gamins de Parme et par trente gendarmes, traversa la belle promenade, passa devant le petit palais qu'habitait la Fausta quelques mois auparavant, et enfin se présenta à la porte extérieure de la citadelle à l'instant où le général Fabio Conti et sa fille allaient sortir. La voiture du gouverneur s'arrêta avant d'arriver au pont-levis pour laisser entrer la sediola à laquelle Fabrice était attaché; le général cria aussitôt que l'on fermât les portes de la citadelle, et se hâta de descendre au bureau d'entrée pour voir un peu ce dont il s'agissait; il ne fut pas peu surpris quand il reconnut le prisonnier, lequel était devenu tout raide, attaché à sa sediola pendant une aussi longue route; quatre gendarmes l'avaient enlevé et le portaient au bureau d'écrou."J'ai donc en mon pouvoir, se dit le vaniteux gouverneur, ce fameux Fabrice del Dongo, dont on dirait que depuis près d'un an la haute société de Parme a juré de s'occuper exclusivement!"
 
@@ -2636,7 +2617,7 @@ Il n'y eut pas d'autres paroles échangées entre le père et la fille pendant v
 En recevant l'anneau pastoral de l'archevêque, Clélia s'était bien promis de parler à son père, lorsqu'elle serait en voiture, du petit service que le prélat lui demandait. Mais après le mot menaces prononcé avec colère, elle se tint pour assurée que son père intercepterait la commission; elle recouvrait cet anneau de la main gauche et le serrait avec passion. Durant tout le temps que l'on mit pour aller du ministère de l'Intérieur à la citadelle, elle se demanda s'il serait criminel à elle de ne pas parler à son père. Elle était fort pieuse, fort timorée, et son coeur, si tranquille d'ordinaire, battait 'avec une violence inaccoutumée mais enfin le qui vive de la sentinelle placée sur le rempart au-dessus de la porte retentit à l'approche de la voiture, avant que Clélia eût trouvé les termes convenables pour disposer son père à ne pas refuser, tant elle avait peur d'être refusée! En montant les trois cent soixante marches qui conduisaient au palais du gouverneur, Clélia ne trouva rien.
 
 Elle se hâta de parler à son oncle, qui la gronda et refusa de se prêter à rien.
-# Chapitre 
+Chapitre 16
 
 - Eh bien! s'écria le général, en apercevant son frère don Cesare, voilà la duchesse qui va dépenser cent mille écus pour se moquer de moi et faire sauver le prisonnier!
 
@@ -2758,7 +2739,7 @@ A peine de retour au ministère, il fit appeler l'abbé Dugnani.
 - Vous dirigez la conscience de mon excellent ami le fiscal général Rassi, n'aurait-il rien à me dire?
 
 Et, sans autres paroles ou plus de cérémonie, il renvoya le Dugnani.
-# Chapitre 
+Chapitre 17
 
 LE comte se regardait comme hors du ministère."Voyons un peu, se dit-il, combien nous pourrons avoir de chevaux après ma disgrâce, car c'est ainsi qu'on appellera ma retraite."Le comte fit l'état de sa fortune: il était entré au ministère avec quatre-vingt mille francs de bien; à son grand étonnement, il trouva que, tout compté son avoir actuel ne s'élevait pas à cinq cent mille francs: "C'est vingt mille livres de rente tout au plus, se dit-il. Il faut convenir que je suis un grand étourdi! Il n'y a pas un bourgeois à Parme qui ne me croie cent cinquante mille livres de rente, et le prince, sur ce sujet, est plus bourgeois qu'un autre. Quand ils me verront dans la crotte, ils diront que je sais bien cacher ma fortune. Pardieu, s'écria-t-il, si je suis encore ministre trois mois, nous la verrons doublée, cette fortune."Il trouva dans cette idée l'occasion d'écrire à la duchesse, et la saisit avec avidité; mais pour se faire pardonner une lettre, dans les termes où ils en étaient, il remplit celle-ci de chiffres et de calculs."Nous n'aurons que vingt mille livres de rente, lui dit-il, pour vivre tous trois à Naples Fabrice, vous et moi. Fabrice et moi nous aurons un cheval de selle à nous deux."Le ministre venait à peine d'envoyer sa lettre, lorsqu'on annonça le fiscal général Rassi; il le reçut avec une hauteur qui frisait l'impertinence.
 
@@ -2883,7 +2864,7 @@ Au sortir de chez la princesse Isota, qui avait grandement rougi en recevant l'a
 Après avoir renvoyé le fourrier du palais fort scandalisé de la parfaite santé de ce malade, le comte trouva plaisant d'aller voir les deux hommes de la cour qui avaient le plus d'influence sur le général Fabio Conti. Ce qui surtout faisait frémir le ministre et lui ôtait tout courage, c'est que le gouverneur de la citadelle était accusé de s'être défait jadis d'un capitaine, son ennemi personnel, au moyen de l'aquetta de Pérouse.
 
 Le comte savait que depuis huit jours la duchesse avait répandu des sommes folles pour se ménager des intelligences à la citadelle, mais, suivant lui, il y avait peu d'espoir de succès, tous les yeux étaient encore trop ouverts. Nous ne raconterons point au lecteur toutes les tentatives de corruption essayées par cette femme malheureuse: elle était au désespoir, et des agents de toute sorte et parfaitement dévoués la secondaient. Mais il n'est peut-être qu'un seul genre d'affaires dont on s'acquitte parfaitement bien dans les petites cours despotiques, c'est la garde des prisonniers politiques. L'or de la duchesse ne produisit d'autre effet que de faire renvoyer de la citadelle huit ou dix hommes de tout grade.
-# Chapitre 
+Chapitre 18
 
 Ainsi, avec un dévouement complet pour le prisonnier, la duchesse et le premier ministre n'avaient pu faire pour lui que bien peu de chose. Le prince était en colère, la cour ainsi que le public étaient piqués contre Fabrice et ravis de lui voir arriver malheur; il avait été trop heureux. Malgré l'or jeté à pleines mains, la duchesse n'avait pu faire un pas dans le siège de la citadelle; il ne se passait pas de jour sans que la marquise Raversi ou le chevalier Riscara eussent quelque nouvel avis à communiquer au général Fabio Conti. On soutenait sa faiblesse.
 
@@ -2988,9 +2969,7 @@ Clélia venait deux ou trois fois le jour voir ses oiseaux, quelquefois pour des
 
 Ainsi, quoique étroitement resserré dans une assez petite cage, Fabrice avait une vie fort occupée; elle était employée tout entière à chercher la solution de ce problème si important: "M'aime-t-elle?"Le résultat de milliers d'observations sans cesse renouvelées, mais aussi sans cesse mises en doute, était ceci: "Tous ses gestes volontaires disent non, mais ce qui est involontaire dans le mouvement de ses yeux semble avouer qu'elle prend de l'amitié pour moi."
 Clélia espérait bien ne jamais arriver à un aveu et c'est pour éloigner ce péril qu'elle avait repoussé, avec une colère excessive, une prière que Fabrice lui avait adressée plusieurs fois. La misère des ressources employées par le pauvre prisonnier aurait dû, ce semble, inspirer à Clélia plus de pitié. Il voulait correspondre avec elle au moyen de caractères qu'il traçait sur sa main avec un morceau de charbon dont il avait fait la précieuse découverte dans son poêle; il aurait formé les mots lettre à lettre, successivement. Cette invention eût doublé les moyens de conversation en ce qu'elle eût permis de dire des choses précises. Sa fenêtre était éloignée de celle de Clélia d'environ vingt-cinq pieds; il eût été trop chanceux de se parler par-dessus la tête des sentinelles se promenant devant le palais du gouverneur. Fabrice doutait d'être aimé; s'il eût eu quelque expérience de l'amour, il ne lui fût pas resté de doutes; mais jamais femme n'avait occupé son coeur, il n'avait, du reste, aucun soupçon d'un secret qui l'eût mis au désespoir s'il l'eût connu; il était grandement question du mariage de Clélia Conti avec le marquis Crescenzi, l'homme le plus riche de la cour.
-# Chapitre 
-
-## 6
+Chapitre 19
 
 L'ambition du général Fabio Conti, exaltée jusqu'à la folie par les embarras qui venaient se placer au milieu de la carrière du premier ministre Mosca et qui semblaient annoncer sa chute, l'avait porté à faire des scènes violentes à sa fille, il lui répétait sans cesse, et avec colère, qu'elle cassait le cou à sa fortune si elle ne se déterminait enfin à faire un choix; à vingt ans passés il était temps de prendre un parti; cet état d'isolement cruel, dans lequel son obstination déraisonnable plongeait le général, devait cesser à la fin, etc.
 
@@ -3124,7 +3103,7 @@ En entrant à la citadelle, le musicien gagné se jeta aux genoux du général F
 
 L'Excellence fut très flattée: elle connaissait les ressources dont la duchesse disposait, et avait grand-peur d'être mystifiée. Dans sa joie, le général alla présenter cette lettre au prince, qui fut ravi.
 - Ainsi, la fermeté de mon administration est parvenue à me venger! Cette femme hautaine souffre depuis cinq mois! Mais l'un de ces jours nous allons faire préparer un échafaud, et sa folle imagination ne manquera pas de croire qu'il est destiné au petit del Dongo.
-# Chapitre 
+Chapitre 20
 
 Une nuit, vers une heure du matin, Fabrice, couché sur sa fenêtre, avait passé la tête par le guichet pratiqué dans l'abat-jour, et contemplait les étoiles et l'immense horizon dont on jouit du haut de la tour Farnèse. Ses yeux, errant dans la campagne du côté du bas Pô et de Ferrare, remarquèrent par hasard une lumière excessivement petite mais assez vive, qui semblait partir du haut d'une tour."Cette lumière ne doit pas être aperçue de la plaine, se dit Fabrice, l'épaisseur de la tour l'empêche d'être vue d'en bas, ce sera quelque signal pour un point éloigné."Tout à coup il remarqua que cette lueur paraissait et disparaissait à des intervalles fort rapprochés."C'est quelque jeune fille qui parle à son amant du village voisin."Il compta neuf apparitions successives: "Ceci est un I", dit-il. En effet, l'I est la neuvième lettre de l'alphabet. Il y eut ensuite, après un repos, quatorze apparitions: "Ceci est un N"; puis, encore après un repos, une seule apparition: "C'est un A; le mot est Ina."
 
@@ -3332,7 +3311,7 @@ Il répondit fort bien:
 - Mes livres sont-ils brûlés?
 
 La même nuit elle eut le bonheur de lui faire parvenir une lettre dans une balle de plomb. Ce fut huit jours après qu'eut lieu le mariage de la soeur du marquis Crescenzi, où la duchesse commit une énorme imprudence dont nous rendrons compte en son lieu.
-# Chapitre 
+Chapitre 21
 
 A l'époque de ses malheurs il y avait déjà près d'une année que la duchesse avait fait une rencontre singulière: un jour qu'elle avait la luna comme on dit dans le pays, elle était allée à l'improviste, sur le soir, à son château de Sacca, situé au-delà de Colorno, sur la colline qui domine le Pô. Elle se plaisait à embellir cette terre; elle aimait la vaste forêt qui couronne la colline et touche au château, elle s'occupait à y faire tracer des sentiers dans des directions pittoresques.
 
@@ -3539,7 +3518,7 @@ Cette corde arrangée tant bien que mal, Fabrice prit celle avec laquelle il com
 il avait fait monter deux cents soldats dans cet ancien corps de garde abandonné depuis un siècle. Il disait qu'après l'avoir empoisonné on voulait l'assassiner dans son lit, et ces deux cents soldats devaient le garder. On peut juger de l'effet que cette mesure imprévue produisit sur le coeur de Clélia: cette fille pieuse sentait fort bien jusqu'à quel point elle trahissait son père, et un père qui venait d'être presque empoisonné dans l'intérêt du prisonnier qu'elle aimait. Elle vit presque dans l'arrivée imprévue de ces deux cents hommes un arrêt de la Providence qui lui défendait d'aller plus avant et de rendre la liberté à Fabrice.
 
 Mais tout le monde dans Parme parlait de la mort prochaine du prisonnier. On avait encore traité ce triste sujet à la fête même donnée à l'occasion du mariage de la signora Giulia Crescenzi. Puisque pour une pareille vétille, un coup d'épée maladroit donné à un comédien, un homme de la naissance de Fabrice n'était pas mis en liberté au bout de neuf mois de prison et avec la protection du premier ministre, c'est qu'il y avait de la politique dans son affaire. Alors, inutile de s'occuper davantage de lui, avait-on dit; s'il ne convenait pas au pouvoir de le faire mourir en place publique, il mourrait bientôt de maladie. Un ouvrier serrurier qui avait été appelé au palais du général Fabio Conti parla de Fabrice comme d'un prisonnier expédié depuis longtemps et dont on taisait la mort par politique. Le mot de cet homme décida Clélia.
-# Chapitre 
+Chapitre 22
 
 Dans la journée Fabrice fut attaqué par quelques réflexions sérieuses et désagréables, mais à mesure qu'il entendait sonner les heures qui le rapprochaient du moment de l'action, il se sentait allègre et dispos. La duchesse lui avait écrit qu'il serait surpris par le grand air, et qu'à peine hors de sa prison il se trouverait dans l'impossibilité de marcher; dans ce cas il valait mieux pourtant s'exposer à être repris que se précipiter du haut d'un mur de cent quatre-vingts pieds."Si ce malheur m'arrive, disait Fabrice, je me coucherai contre le parapet, je dormirai une heure, puis je recommencerai; puisque je l'ai juré à Clélia, j'aime mieux tomber du haut d'un rempart, si élevé qu'il soit que d'être toujours à faire des réflexions sur lé goût du pain que je mange. Quelles horribles douleurs ne doit-on pas éprouver avant la fin, quand on meurt empoisonné! Fabio Conti n'y cherchera pas de façons, il me fera donner de l'arsenic avec lequel il tue les rats de sa citadelle."
 
@@ -3669,7 +3648,7 @@ Arrivé en présence de son père, elle eut le courage de lui dire que si toujou
 
 Le comte Mosca ne manquait pas de se montrer profondément scandalisé de l'évasion de ce mauvais sujet de Fabrice, et répétait dans l'occasion la phrase inventée par Rassi sur le plat procédé de ce jeune homme, fort
 vulgaire d'ailleurs, qui s'était soustrait à la clémence du prince. Cette phrase spirituelle, consacrée par la bonne compagnie, ne prit point dans le peuple. Laissé à son bon sens, et tout en croyant Fabrice fort coupable, il admirait la résolution qu'il avait fallu pour se lancer d'un mur si haut. Pas un être de la cour n'admira ce courage. Quant à la police, fort humiliée de cet échec, elle avait découvert officiellement qu'une troupe de vingt soldats gagnés par les distributions d'argent de la duchesse, cette femme si atrocement ingrate, et dont on ne prononçait plus le nom qu'avec un soupir, avaient tendu à Fabrice quatre échelles liées ensemble et de quarante-cinq pieds de longueur chacune: Fabrice ayant tendu une corde qu'on avait liée aux échelles, n'avait eu que le mérite fort vulgaire d'attirer ces échelles à lui. Quelques libéraux connus par leur imprudence, et entre autres le médecin $\mathrm{C}^{* * *}$, agent payé directement par le prince, ajoutaient, mais en se compromettant, que cette police atroce avait eu la barbarie de faire fusiller huit des malheureux soldats qui avaient facilité la fuite de cet ingrat de Fabrice. Alors il fut blâmé même des libéraux véritables, comme ayant causé par son imprudence la mort de huit pauvres soldats. C'est ainsi que les petits despotismes réduisent à rien la valeur de l'opinion.
-# Chapitre 
+Chapitre 23
 
 Au milieu de ce déchaînement général le seul archevêque Landriani se montra fidèle à la cause de son jeune ami, il osait répéter, même à la cour de la princesse, la maxime de droit suivant laquelle, dans tout procès, il faut réserver une oreille pure de tout préjugé pour entendre les justifications d'un absent.
 
@@ -3824,7 +3803,7 @@ aux fermiers généraux du prince, qui étaient des fripons; le comte les a remp
 La conversation fut finie dans ce sens, les écailles tombaient des yeux de l'innocente et spirituelle princesse.
 
 Un courrier de la duchesse alla dire à Fabrice qu'il pouvait entrer en ville, mais en se cachant. On l'aperçut à peine: il passait sa vie déguisé en paysan dans la baraque en bois d'un marchand de marrons, établi vis-à-vis de la porte de la citadelle, sous les arbres de la promenade.
-# Chapitre 
+Chapitre 24
 
 La duchesse organisa des soirées charmantes au palais qui n'avait jamais vu tant de gaieté; jamais elle né fut plus aimable que cet hiver, et pourtant elle vécut au milieu des plus grands dangers; mais aussi, pendant cette saison critique, il ne lui arriva pas deux fois de songer avec un certain degré de malheur à l'étrange changement de Fabrice. Le jeune prince venait de fort bonne heure aux soirées aimables de sa mère, qui lui disait toujours:
 
@@ -3926,8 +3905,7 @@ La princesse trouva ce nous fort insolent, mais elle eut l'air à la fois étonn
 
 - Je supplie Votre Altesse de lire toute la fable.
 
-
-# LE JARDINIER ET SON SEIGNEUR 
+LE JARDINIER ET SON SEIGNEUR 
 
 Un amateur de jardinage Demi-bourgeois, demi-manant, Possédait en certain village Un jardin assez propre, et le clos attenant. Il avait de plant
 vif fermé cette étendue: Là croissaient à plaisir l'oseille et la laitue, De quoi faire à Margot pour sa fête un bouquet, Peu de jasmin d'Espagne et force serpolet. Cette félicité par un lièvre troublée Fit qu'au seigneur du bourg notre homme se plaignit. Ce maudit animal vient prendre sa goulée Soir et matin, dit-il, et des pièges se rit; Les pierres les bâtons y perdent leur crédit: Il est sorcier, je crois - Sorcier! je l'en défie, Repartit le seigneur: fût-il diable, Miraut, En dépit de ses tours, l'attrapera bientôt. Je vous en déferai, bonhomme, sur ma vie. - Et quand?- Et dès demain, sans tarder plus longtemps. La partie ainsi faite, il vient avec ses gens. - Çà, déjeunons, ditil: vos poulets sont-ils tendres? L'embarras des chasseurs succède au déjeuner. Chacun s'anime et se prépare; Les trompes et les cors font un tel tintamarre Que le bonhomme est étonné. Le pis fut que l'on mit en piteux équipage Le pauvre potager. Adieu planches, carreaux; Adieu chicorée et poireaux; Adieu de quoi mettre au potage. Le bonhomme disait: Ce sont là jeux de prince. Mais on le laissait dire; et les chiens et les gens Firent plus de dégât en une heure de temps Que n'en auraient fait en cent ans Tous les lièvres de la province. Petits princes, videz vos débats entre vous; De recourir aux rois vous seriez de grands fous. Il ne les faut jamais engager dans vos guerres, Ni les faire entrer sur vos terres.
@@ -4045,7 +4023,7 @@ La duchesse courut à la forteresse; le général Fabio Conti fut enchanté d'av
 - C'est que j'ai obtenu pour eux un ordre du prince.
 
 La pauvre duchesse ne connaissait pas tous ses malheurs. Le général Fabio Conti s'était regardé comme personnellement déshonoré par la fuite de Fabrice: lorsqu'il le vit arriver à la citadelle, il n'eût pas dû le recevoir, car il n'avait aucun ordre pour cela."Mais, se dit-il, c'est le Ciel qui me l'envoie pour réparer mon honneur et me sauver du ridicule qui flétrirait ma carrière militaire. Il s'agit de ne pas manquer à l'occasion: sans doute on va l'acquitter, et je n'ai que peu de jours pour me venger."
-# Chapitre 
+Chapitre 25
 
 L'arrivée de notre héros mit Clélia au désespoir: la pauvre fille, pieuse et sincère avec elle-même, ne pouvait se dissimuler qu'il n'y aurait jamais de bonheur pour elle loin de Fabrice, mais elle avait fait voeu à la Madone, lors du demi-empoisonnement de son père, de faire à celui-ci le sacrifice d'épouser le marquis Crescenzi. Elle avait fait le voeu de ne jamais revoir Fabrice, et déjà elle était en proie aux remords les plus affreux, pour l'aveu auquel elle avait été entraînée dans la lettre qu'elle avait écrite à Fabrice la veille de sa fuite. Comment peindre ce qui se passa dans ce triste coeur lorsque, occupée mélancoliquement à voir voltiger ses oiseaux, et levant les yeux par habitude et avec tendresse vers la fenêtre de laquelle autrefois Fabrice la regardait, elle l'y vit de nouveau qui la saluait avec un tendre respect.
 
@@ -4264,7 +4242,7 @@ Ce fut une grande leçon de philosophie pour Fabrice que de se trouver parfaitem
 Une foule d'avantages, conséquence de sa brillante position, ne produisaient chez lui d'autre effet que de lui donner de l'humeur. Son frère cette âme vaniteuse et gangrenée par le plus vii égoïsme, lui écrivit une lettre de congratulation presque officielle, et à cette lettre était joint un mandat de 50000 francs, afin qu'il pût, disait le nouveau marquis, acheter des chevaux et une voiture dignes de son nom. Fabrice envoya cette somme à sa soeur cadette, mal mariée.
 
 Le comte Mosca avait fait faire une belle traduction, en italien, de la généalogie de la famille Valserra del Dongo, publiée jadis en latin par l'archevêque de Parme, Fabrice. Il la fit imprimer magnifiquement avec le texte latin en regard; les gravures avaient été traduites par de superbes lithographies faites à Paris. La duchesse avait voulu qu'un beau portrait de Fabrice fût placé vis-à-vis celui de l'ancien archevêque. Cette traduction fut publiée comme étant l'ouvrage de Fabrice pendant sa première détention. Mais tout était anéanti chez notre héros, même la vanité si naturelle à l'homme; il ne daigna pas lire une seule page de cet ouvrage qui lui était attribué. Sa position dans le monde lui fit une obligation d'en présenter un exemplaire magnifiquement relié au prince, qui crut lui devoir un dédommagement pour la mort cruelle dont il avait été si près, et lui accorda les grandes entrées de sa chambre, faveur qui donne l'excellence.
-# Chapitre 
+Chapitre 26
 
 Les seuls instants pendant lesquels Fabrice eut quelque chance de sortir de sa profonde tristesse étaient ceux qu'il passait caché derrière un carreau de, vitre, par lequel il avait fait remplacer un carreau de papier huilé à la fenêtre de son appartement vis-à-vis le palais Contarini, où, comme on sait, Clélia s'était réfugiée; le petit nombre de fois qu'il l'avait vue depuis qu'il était sorti de la citadelle, il avait été profondément affligé d'un changement frappant, et qui lui semblait du plus mauvais augure. Depuis sa faute, la physionomie de Clélia avait pris un caractère de noblesse et de sérieux vraiment remarquable; on eût dit qu'elle avait trente ans. Dans ce changement si extraordinaire, Fabrice aperçut le reflet de quelque ferme résolution."A chaque instant de la journée, se disait-il, elle se jure à elle-même d'être fidèle au voeu qu'elle a fait à la Madone, et de ne jamais me revoir."
 
@@ -4395,7 +4373,7 @@ Tout changea aux yeux de Fabrice; en un instant il fut un autre homme; dès le l
 
 - Ce nouveau prince est la vertu incarnée, mais je l'ai appelé cet enfant: me pardonnera-t-il jamais? Je ne vois qu'un moyen de me remettre réellement bien avec lui, c'est l'absence. Je vais me montrer parfait de grâces et de respects, après quoi je suis malade et je demande mon congé. Vous me le permettrez, puisque la fortune de Fabrice est assurée. Mais me ferez-vous le sacrifice immense, ajouta-t-il en riant, de changer le titre sublime de duchesse contre un autre bien inférieur? Pour m'amuser, je laisse toutes les affaires ici dans un désordre inextricable; j'avais quatre ou cinq travailleurs dans mes divers ministères, je les ai fait mettre à la pension depuis deux mois, parce qu'ils lisent les journaux en français; et je les ai remplacés par des nigauds incroyables.
 "Après notre départ, le prince se trouvera dans un tel embarras, que, malgré l'horreur qu'il a pour le caractère de Rassi je ne doute pas qu'il soit obligé de le rappeler, et moi je n'attends qu'un ordre du tyran qui dispose de mon sort, pour écrire une lettre de tendre amitié à mon ami Rassi, et lui dire que j'ai tout lieu d'espérer que bientôt on rendra justice à son mérite."
-# Chapitre 
+Chapitre 27
 
 Cette conversation sérieuse eut lieu le lendemain du retour de Fabrice au palais Sanseverina; la duchesse était encore sous le coup de la joie qui éclatait dans toutes les actions de Fabrice."Ainsi, se disait-elle, cette petite dévote m'a trompée! Elle n'a pas su résister à son amant seulement pendant trois mois."
 
@@ -4513,7 +4491,7 @@ Mais les larmes brûlantes qu'Anetta versait au sermon mirent sur la voie de la 
 Clélia se garda bien d'ouvrir la bouche sur un tel sujet dans son salon; mais elle fit des questions à sa femme de chambre, et, le dimanche suivant, après avoir entendu la messe à la chapelle de son palais, elle fit monter sa femme de chambre dans sa voiture, et alla chercher une seconde messe à la paroisse de Mlle Marini. Elle y trouva réunis tous les beaux de la ville attirés par le même motif; ces messieurs se tenaient debout près de la porte. Bientôt, au grand mouvement qui se fit parmi eux, la marquise comprit que cette Mlle Marini entrait dans l'église; elle se trouva fort bien placée pour la voir, et, malgré sa piété, ne donna guère d'attention à la messe. Clélia trouva à cette beauté bourgeoise un petit air décidé qui, suivant elle, eût pu convenir tout au plus à une femme mariée depuis plusieurs années. Du reste elle était admirablement bien prise dans sa petite taille, et ses yeux, comme l'on dit en Lombardie, semblaient faire la conversation avec les choses qu'ils regardaient. La marquise s'enfuit avant la fin de la messe.
 
 Dès le lendemain, les amis de la maison Crescenzi, lesquels venaient tous les soirs passer la soirée, racontèrent un nouveau trait ridicule de l'Anetta Marini. Comme sa mère, craignant quelque folie de sa part, ne laissait que peu d'argent à sa disposition, Anetta était allée offrir une magnifique bague en diamants, cadeau de son père, au célèbre Hayez, alors à Parme pour les salons du palais Crescenzi, et lui demander le portrait de M. del Dongo; mais, elle voulut que ce portrait fût vêtu simplement de noir, et non point en habit de prêtre. Or, la veille, la mère de la petite Anetta avait été bien surprise, et encore plus scandalisée de trouver dans la chambre de sa fille un magnifique portrait de Fabrice del Dongo, entouré du plus beau cadre que l'on eût doré à Parme depuis vingt ans.
-# Chapitre 
+Chapitre 28
 
 Entraînés par les événements, nous n'avons pas eu le temps d'esquisser la race comique de courtisans qui pullulent à la cour de Parme et faisaient de drôles de commentaires sur les événements par nous racontés. Ce qui rend en ce pays-là un petit noble, garni de ses trois ou quatre mille livres de rente, digne de figurer en bas noirs, aux levers du prince, c'est d'abord de n'avoir jamais lu Voltaire et Rousseau: cette condition est peu difficile à remplir. Il fallait ensuite savoir parler avec attendrissement du rhume du souverain, ou de la dernière caisse de minéralogie qu'il avait reçue de Saxe. Si après cela on ne manquait pas à la messe un seul jour de l'année, si l'on pouvait compter au nombre de ses amis intimes deux ou trois gros moines, le prince daignait vous adresser une fois la parole tous les ans, quinze jours avant ou quinze jours après le 1er janvier, ce qui vous donnait un grand relief dans votre paroisse, et le percepteur des contributions n'osait pas trop vous vexer si vous étiez en retard sur la somme annuelle de cent francs à laquelle étaient imposées vos petites propriétés.
 M. Gonzo était un pauvre hère de cette sorte, fort noble, qui, outre qu'il possédait quelque petit bien, avait obtenu par le crédit du marquis Crescenzi une place magnifique, rapportant mille cent cinquante francs par an. Cet homme eût pu dîner chez lui, mais il avait une passion: il n'était à son aise et heureux que lorsqu'il se trouvait dans le salon de quelque grand personnage qui lui dît de temps à autre:
@@ -4692,71 +4670,3 @@ Peu de jours après la mort de Clélia, il signa plusieurs actes par lesquels il
 La comtesse Mosca avait fort approuvé, dans le temps, que son mari reprit le ministère, mais jamais elle n'avait voulu consentir à rentrer dans les Etats d'Ernest V. Elle tenait sa cour à Vignano, à un quart de lieue de Casal Maggiore, sur la rive gauche du Pô, et par conséquent dans les Etats de l'Autriche. Dans ce magnifique palais de Vignano, que le comte lui avait fait bâtir, elle recevait les jeudis toute la haute société de Parme, et tous les jours ses nombreux amis. Fabrice n'eût pas manqué un jour de venir à Vignano. La comtesse en un mot réunissait toutes les apparences du bonheur, mais elle ne survécut que fort peu de temps à Fabrice, qu'elle adorait, et qui ne passa qu'une année dans sa chartreuse.
 
 Les prisons de Parme étaient vides, le comte immensément riche, Ernest V adoré de ses sujets qui comparaient son gouvernement à celui des grandsducs de Toscane.
-# Vous avez aimé ce livre? <br> Nos utilisateurs ont aussi téléchargés 
-
-## Jean-Jacques Rousseau
-
-## Les rêveries du promeneur solitaire
-
-Les Rêveries du promeneur solitaire tiennent à la fois de l'autobiographie et de la réflexion philosophique : il constitue le dernier des écrits de Rousseau, la partie finale ayant vraisemblablement été conçue quelques semaines avant sa mort, et l'œuvre étant inachevée.
-
-## Charles Baudelaire
-
-## Les Fleurs du mal
-
-Euvre majeure de Charles Baudelaire, le recueil de poèmes Les Fleurs du mal, intégrant la quasi-totalité de la production poétique de l'auteur depuis 1840, est publié le 23 juin 1857. C'est l'une des œuvres les plus importantes de la poésie moderne, empreinte d'une nouvelle esthétique où la beauté et le sublime surgissent, grâce au langage poétique, de la réalité la plus triviale et qui exerça une influence considérable sur Arthur Rimbaud et Stéphane Mallarmé.
-
-## Stendhal
-
-## Le Rouge et le Noir
-
-Au rouge des armes, Julien Sorel préfèrera le noir des ordres. Au cours de son ascension sociale, deux femmes se singularisent, comme pour figurer les deux penchants de son caractère : Madame de Rênal - le rêve, l'aspiration à un bonheur pur et simple - et Mathilde de La Mole - l'énergie, l'action brillante et fébrile. A ces composantes stendhaliennes (conception de la vie qui dépasse la stratégie narrative pour s'étendre à l'existence de l'auteur) correspondent deux facettes stylistiques : la sobriété et la restriction du champ de vision.
-
-## Stendhal
-
-## Armance
-
-Octave de Malivert sort de Polytechnique. Il est jeune, brillant, élégant mais son caractère étrange inquiète sa mère. Celle-ci l'invite à fréquenter le salon de mandame de Malivert pour le sortir de son isolement. Il y retrouve sa cousine, Armance de Zohiloff. Mais si la «loi d'indemnité» qui vient d'être votée pour indemniser les nobles s'estimant spoliés par la révolution fait d'Octave un parti intéressant, Armance semble rester insensible aux attraits du jeune homme. Octave réalise qu'il est amoureux d'Armance, malgré sa volonté et le
-serment qu'il s'est fait de ne jamais aimer. Derrière ce comportement étange, il y a le mal d'Octave, condamné au seul amour platonique...
-
-# Marcel Proust 
-
-## À l'ombre des jeunes filles en fleurs
-
-À l'ombre des jeunes filles en fleurs est le second tome d'À la recherche du temps perdu de Marcel Proust publié en 1919 chez Gallimard. Il reçoit la même année le prix Goncourt.
-
-## Marcel Proust
-
-## Du côté de chez Swann
-
-Du côté de chez Swann est un roman de Marcel Proust, c'est le premier volume de À la recherche du temps perdu. Il est composé de trois parties, dont les titres sont : Combray, Un amour de Swann et Nom de pays : le nom.
-
-## Marcel Proust
-
-## Le Côté de Guermantes
-
-Le Côté de Guermantes est le troisième tome d'À la recherche du temps perdu de Marcel Proust publié entre 1921 et 1922 chez Gallimard. Dans son édition originelle, le roman est divisé en deux tomes dont la deuxième partie, Le côté de Guermantes I, est suivie de Le Côté de Guermantes II.
-
-## Marcel Proust
-
-## Sodome et Gomorrhe
-
-Sodome et Gomorrhe est le quatrième volet d'À la recherche du temps perdu de Marcel Proust publié en 2 tomes entre 1922 et 1923 chez Gallimard.
-Dans ce roman, le jeune narrateur découvre par hasard que Charlus est homosexuel, lorsqu'il assiste en témoin auditif à ses ébats avec Jupien.
-
-## Gustave Flaubert
-
-## Madame Bovary
-
-Charles Bovary, après avoir suivi ses études dans un lycée de province, s'établit comme officier de santé et se marie à une riche veuve. À la mort de celle-ci, Charles épouse une jeune femme, Emma Rouault, élevée dans un couvent, vivant à la ferme avec son père (un riche fermier, patient du jeune médecin). Emma se laisse séduire par Charles et se marie avec lui. Fascinée par ses lectures romantiques, elle rêve d'une nouvelle vie, en compagnie de son nouveau mari.
-
-## Gustave Flaubert
-# L'Éducation Sentimentale 
-
-L'Éducation sentimentale, histoire d'un jeune homme est un roman écrit par Gustave Flaubert, et publié en 1869.
-Le cœur du récit est tiré du roman de Sainte-Beuve : Volupté, qu'Honoré de Balzac avait déjà traité et d'une certaine manière réécrit avec le Lys dans la vallée. Le roman de Flaubert reprend le même sujet selon des règles narratives entièrement neuves, réinventant le roman d'apprentissage pour lui donner une profondeur et une acuité jamais atteinte.
-# 1 
-
-## www.feedbooks.com
-
-Food for the mind
