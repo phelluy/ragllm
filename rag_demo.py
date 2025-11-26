@@ -48,9 +48,9 @@ class SimpleRAG:
         self.documents = []
         self.embeddings = []
 
-        # Modèle d'embedding léger et performant
+        # Modèle d'embedding multilingue pour meilleure performance en français
         print("Chargement du modèle d'embedding...")
-        self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.embedding_model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 
         # Configuration du provider LLM
         self._provider_cfg = get_provider(
@@ -86,12 +86,11 @@ class SimpleRAG:
                 paragraphs = [p.strip() for p in content.split('\n\n') if p.strip()]
                 
                 for para in paragraphs:
-                    # Filtrer les paragraphes trop courts (titres, etc.)
-                    if len(para) > 50:
-                        self.documents.append({
-                            'text': para,
-                            'source': os.path.basename(filepath)
-                        })
+                    # Garder tous les paragraphes, même courts
+                    self.documents.append({
+                        'text': para,
+                        'source': os.path.basename(filepath)
+                    })
         
         print(f"  → {len(self.documents)} chunks chargés depuis {len(md_files)} fichiers")
     
