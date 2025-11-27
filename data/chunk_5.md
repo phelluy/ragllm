@@ -1,0 +1,1 @@
+Alors que Dorian caressait la joue d'Elara, un rayon de lune éclaira sa main. Elara remarqua le détail de sa nouvelle bague : c'était une chevalière en argent massif. Elle put distinguer une gravure minutieuse représentant un serpent à deux têtes. Elle trouva le bijou étrange mais ne dit rien.

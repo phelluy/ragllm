@@ -1,0 +1,1 @@
+La Main Noire est une organisation impitoyable. Ses membres sont des maîtres du déguisement. On raconte que pour se reconnaître entre eux, chaque membre de haut rang porte obligatoirement une chevalière en argent gravée d'un serpent à deux têtes. C'est leur symbole unique et intransigeant.

@@ -1,0 +1,1 @@
+Soudain, un cri retentit depuis la bibliothèque. Le célèbre collier "Larme de Lune" venait d'être dérobé. Les gardes fermèrent les issues. Le capitaine de la garde annonça que le vol portait la signature indéniable de la confrérie des voleurs connue sous le nom de "La Main Noire".
