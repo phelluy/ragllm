@@ -216,7 +216,7 @@ Pour une réponse générée par LLM, assurez-vous que l'API REST est accessible
         context = "\n\n".join([doc['text'] for doc in context_docs])
         
         # Construction du prompt
-        prompt = f"""Basé sur le contexte suivant, réponds à la question de manière concise et précise.
+        prompt = f"""En te basant *uniquement* sur le contexte suivant, réponds à la question de manière courte et précise.
 
 Contexte:
 {context}
@@ -237,9 +237,7 @@ Réponse:"""
                     "content": prompt,
                 }
             ],
-            "temperature": 0.3,
             "max_tokens": 2000,
-            "top_p": 0.9,
         }
         
         try:
@@ -289,7 +287,7 @@ Réponse:"""
             
             # Recherche des documents pertinents
             print("\n🔍 Recherche des documents pertinents...")
-            results = self.search(query, top_k=20)
+            results = self.search(query, top_k=3)
             
             print(f"\n📚 Documents trouvés (top 3):")
             for i, (doc, score) in enumerate(results, 1):
@@ -323,7 +321,7 @@ def main():
         provider_env = None
 
     # Initialisation du système RAG avec provider modulaire
-    rag = SimpleRAG(data_dir="data_big", provider_name=provider_env)
+    rag = SimpleRAG(data_dir="data", provider_name=provider_env)
     
     # Chargement et indexation des documents
     rag.load_documents()
@@ -339,9 +337,7 @@ def main():
     print("="*70)
     
     example_queries = [
-        "Qu'est-ce que le RAG ?",
-        "Comment fonctionnent les embeddings ?",
-        "Quelles sont les bases de données vectorielles ?",
+        "D'après les textes, pourquoi Lady Elara devrait-elle craindre que Dorian soit impliqué dans le vol du collier ?",
     ]
     
     for query in example_queries:
@@ -350,11 +346,19 @@ def main():
         
         results = rag.search(query, top_k=3)
         
-        print(f"📚 Top 3 documents pertinents :\n")
+        print(f"Top documents pertinents :\n")
         for i, (doc, score) in enumerate(results, 1):
             print(f"[{i}] Score: {score:.4f} | Source: {doc['source']}")
             print(f"    {doc['text'][:200]}...")
             print()
+        
+        # Génération de la réponse
+        print("Réponse générée:")
+        print("-" * 70)
+        context_docs = [doc for doc, score in results]
+        response = rag.generate_with_llm(query, context_docs)
+        print(response)
+        print("-" * 70)
     
     # Mode interactif
     print("\n" + "="*70)

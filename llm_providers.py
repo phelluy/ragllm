@@ -29,6 +29,12 @@ PROVIDERS: Dict[str, ProviderConfig] = {
         model="mistral-large-latest",
         api_key_env="MISTRAL_API_KEY",
     ),
+    "MISTRAL_NEMO": ProviderConfig(
+        name="MISTRAL_NEMO",
+        url="https://api.mistral.ai/v1/chat/completions",
+        model="open-mistral-nemo",
+        api_key_env="MISTRAL_API_KEY",
+    ),
     "MISTRAL_CODESTRAL": ProviderConfig(
         name="MISTRAL_CODESTRAL",
         url="https://codestral.mistral.ai/v1/chat/completions",
@@ -55,7 +61,8 @@ PROVIDERS: Dict[str, ProviderConfig] = {
     ),
 }
 
-DEFAULT_PROVIDER = "MISTRAL_CODESTRAL"
+#DEFAULT_PROVIDER = "MISTRAL_CODESTRAL"
+DEFAULT_PROVIDER = "IRMA_LLMCODE"
 
 
 def get_provider(name: Optional[str] = None,
