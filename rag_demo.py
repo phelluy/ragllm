@@ -344,7 +344,7 @@ def main():
         print(f"\n❓ Question : {query}")
         print("-" * 70)
         
-        results = rag.search(query, top_k=3)
+        results = rag.search(query, top_k=4)
         
         print(f"Top documents pertinents :\n")
         for i, (doc, score) in enumerate(results, 1):
