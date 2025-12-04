@@ -19,8 +19,16 @@ import logging
 import argparse
 from typing import List, Optional
 import networkx as nx
+
+# Forcer le backend matplotlib non-interactif AVANT d'importer pyplot
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 from neo4j import GraphDatabase
+
+# Désactiver le parallelisme des tokenizers pour éviter les avertissements de fork
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # Configuration du logging pour voir ce qui se passe
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -62,16 +70,7 @@ except ImportError:
 
 
 class HybridGraphRetriever(BaseRetriever):
-    """Retriever hybride qui utilise le graphe pour découvrir des chunks pertinents.
-    
-    Stratégie (Option 2 - Graphe autonome avec expansion):
-    1. Le graphe identifie les triplets pertinents à la requête
-    2. On récupère les IDs des chunks sources de ces triplets
-    3. On charge le texte complet de ces chunks depuis l'index vectoriel
-    4. On retourne les chunks complets avec leurs triplets associés
-    
-    Cela garantit que chaque triplet est accompagné de son contexte textuel d'origine.
-    """
+    """Retriever hybride qui combine les triplets du graphe ET le texte source des chunks."""
     
     def __init__(self, graph_index, vector_index, similarity_top_k: int = 3):
         self.graph_index = graph_index
@@ -80,61 +79,37 @@ class HybridGraphRetriever(BaseRetriever):
         super().__init__()
     
     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        """Récupère les chunks via le graphe, puis charge leur texte source complet."""
+        """Récupère à la fois les triplets du graphe ET le texte des chunks pertinents."""
         
-        # 1. Récupérer les triplets pertinents du graphe
+        # 1. Récupérer les triplets du graphe
         graph_retriever = self.graph_index.as_retriever(
             similarity_top_k=self.similarity_top_k,
-            include_text=True,  # Inclure le texte source si disponible
+            include_text=True,
         )
         graph_nodes = graph_retriever.retrieve(query_bundle)
         
-        # 2. Extraire les IDs des chunks sources des triplets
-        source_node_ids = set()
-        triplet_nodes = []
+        # 2. Récupérer les chunks de texte via l'index vectoriel
+        vector_retriever = self.vector_index.as_retriever(
+            similarity_top_k=self.similarity_top_k
+        )
+        vector_nodes = vector_retriever.retrieve(query_bundle)
         
-        for node in graph_nodes:
-            # Les triplets ont souvent un ref_doc_id qui pointe vers le chunk source
-            if hasattr(node.node, 'ref_doc_id') and node.node.ref_doc_id:
-                source_node_ids.add(node.node.ref_doc_id)
-            
-            # Garder aussi les triplets pour information structurée
-            content = node.node.get_content()
-            if "->" in content or "(" in content:
-                triplet_nodes.append(node)
-        
-        # 3. Récupérer les chunks sources complets depuis le docstore
+        # 3. Combiner les résultats
+        # On garde les chunks vectoriels avec leur texte complet
+        # et on ajoute les triplets du graphe comme contexte structuré
         all_nodes = []
-        docstore = self.vector_index.docstore
         
-        for node_id in source_node_ids:
-            try:
-                # Récupérer le noeud complet avec son texte
-                source_node = docstore.get_node(node_id)
-                if source_node:
-                    # Créer un NodeWithScore pour maintenir la cohérence
-                    # Score = moyenne des scores des triplets issus de ce chunk
-                    related_triplet_scores = [
-                        n.score for n in graph_nodes 
-                        if hasattr(n.node, 'ref_doc_id') and n.node.ref_doc_id == node_id
-                    ]
-                    avg_score = sum(related_triplet_scores) / len(related_triplet_scores) if related_triplet_scores else 0.5
-                    
-                    all_nodes.append(NodeWithScore(node=source_node, score=avg_score))
-            except Exception as e:
-                logger.warning(f"Impossible de récupérer le chunk {node_id}: {e}")
+        # Ajouter d'abord les chunks de texte (source primaire)
+        all_nodes.extend(vector_nodes)
         
-        # 4. Ajouter les triplets comme contexte structuré supplémentaire
-        # (optionnel, pour que le LLM voie aussi les relations extraites)
-        all_nodes.extend(triplet_nodes)
-        
-        # 5. Si aucun chunk source trouvé via le graphe, fallback sur recherche vectorielle
-        if not all_nodes:
-            logger.info("Aucun chunk trouvé via le graphe, fallback sur recherche vectorielle")
-            vector_retriever = self.vector_index.as_retriever(
-                similarity_top_k=self.similarity_top_k
-            )
-            all_nodes = vector_retriever.retrieve(query_bundle)
+        # Ajouter ensuite les triplets du graphe comme contexte supplémentaire
+        # On peut formater les triplets de manière plus lisible
+        for node in graph_nodes:
+            content = node.node.get_content()
+            # Si c'est un triplet, on le formate pour être plus lisible
+            if "->" in content or "(" in content:
+                # C'est probablement un triplet, on le garde tel quel
+                all_nodes.append(node)
         
         return all_nodes
 
@@ -154,8 +129,8 @@ class GraphRAGDemo:
     ):
         self.data_dir = data_dir
         self.top_k = top_k
-        self.reload = reload
         self.persist_dir = persist_dir
+        self.force_rebuild = False  # Flag pour forcer la reconstruction
         
         # 1. Configuration du LLM via le provider existant
         provider_cfg = get_provider(name=provider_name)
@@ -233,60 +208,41 @@ class GraphRAGDemo:
             print(f"⚠️ Attention: Impossible de vider Neo4j: {e}")
 
     def load_and_index(self):
-        """Charge les documents et construit les index (ou les recharge)."""
+        """Charge les documents et construit les index (ou les recharge si déjà existants).
         
-        # Si reload demandé et que le dossier existe
-        if self.reload and os.path.exists(self.persist_dir):
-            print(f"\n♻️  Rechargement des index depuis {self.persist_dir}...")
-            try:
-                # Recharger le contexte de stockage
-                storage_context = StorageContext.from_defaults(persist_dir=self.persist_dir)
-                
-                # Recharger les index
-                # Note: load_index_from_storage charge un index. Si on en a plusieurs, il faut les distinguer.
-                # Ici on va tricher un peu en essayant de charger par ID si possible, ou juste charger ce qu'on trouve.
-                # Pour simplifier dans cette démo : on suppose que load_index_from_storage va nous rendre l'index vectoriel
-                # si c'est le seul persisté ou le principal.
-                # Mais KnowledgeGraphIndex et VectorStoreIndex sont stockés ensemble.
-                
-                print("   → Chargement de l'index VECTORIEL...")
-                self.vector_index = load_index_from_storage(storage_context, index_id="vector_index")
-                
-                print("   → Chargement de l'index GRAPHE...")
-                self.graph_index = load_index_from_storage(storage_context, index_id="graph_index")
-                
-                # Si on utilise Neo4j, le graph_store doit être correctement reconnecté
-                # Mais StorageContext.from_defaults(persist_dir) va charger un SimpleGraphStore depuis le disque
-                # si on ne lui dit pas le contraire.
-                # Si on veut Neo4j, il faut que le storage_context utilise NOTRE graph_store (Neo4j)
-                # et qu'on ne charge que les docstores/indexstores depuis le disque.
-                
-                # Correction pour Neo4j :
-                if self.use_neo4j and NEO4J_AVAILABLE:
-                     # On garde notre graph_store Neo4j connecté
-                     # On charge juste les autres stores (doc, index, vector)
-                     # C'est un peu tricky avec LlamaIndex high-level.
-                     # Le plus simple : re-créer le StorageContext avec notre graph_store,
-                     # et charger les données persistées dedans.
-                     pass 
-                
-                print("✅ Index rechargés avec succès.")
+        Comportement :
+        - Par défaut : Si index existe → charge. Sinon → construit.
+        - Avec force_rebuild=True : Force la reconstruction complète.
+        """
+        
+        # Déterminer si les index existent déjà
+        if not self.force_rebuild:
+            graph_exists = self._check_graph_exists()
+            indexes_persisted = os.path.exists(self.persist_dir)
+            
+            # Si les index existent, les charger
+            if graph_exists and indexes_persisted:
+                print(f"\n✅ Index existants détectés. Chargement depuis le stockage...")
+                self._load_existing_indexes()
                 return
-
-            except Exception as e:
-                print(f"⚠️ Erreur lors du rechargement : {e}")
-                print("   → Bascule sur la régénération complète.")
-
-        # Sinon (ou si échec), on génère tout
+        else:
+            print(f"\n🔄 Reconstruction forcée demandée.")
+        
+        # Sinon, reconstruire tout
         print(f"\n📂 Chargement des documents depuis {self.data_dir}...")
         documents = SimpleDirectoryReader(self.data_dir).load_data()
         print(f"   → {len(documents)} documents chargés.")
+        
+        # Vider Neo4j avant reconstruction
+        if self.use_neo4j and NEO4J_AVAILABLE:
+            print("🧹 Nettoyage de Neo4j avant reconstruction...")
+            self.clear_neo4j_database("bolt://localhost:7687", "neo4j", "password")
         
         # Construction de l'index Vectoriel
         print("\n🚀 Construction de l'index VECTORIEL...")
         self.vector_index = VectorStoreIndex.from_documents(
             documents,
-            storage_context=self.storage_context, # Important pour partager le même storage
+            storage_context=self.storage_context,
             show_progress=True
         )
         self.vector_index.set_index_id("vector_index")
@@ -311,101 +267,194 @@ class GraphRAGDemo:
         self.storage_context.persist(persist_dir=self.persist_dir)
         print("   → Sauvegarde terminée.")
         
-        if self.use_neo4j and NEO4J_AVAILABLE:
-             self.perform_entity_resolution()
-             self.generate_graph_image()
-
-    def perform_entity_resolution(self):
-        """Fusionne les noeuds similaires (Entity Resolution basique)."""
-        print("\n🔗 Exécution de la résolution d'entités (Fusion des noeuds 'Chevalière')...")
-        # Récupération des paramètres (copié de generate_graph_image, à refactoriser idéalement)
-        uri = "bolt://localhost:7687"
-        user = "neo4j"
-        password = "password"
-        if hasattr(self.graph_store, 'url'): uri = self.graph_store.url
-        if hasattr(self.graph_store, 'username'): user = self.graph_store.username
-        if hasattr(self.graph_store, 'password'): password = self.graph_store.password
-
+        # Générer l'image du graphe (pour Neo4j ET SimpleGraphStore)
+        self.generate_graph_image()
+    
+    def _extract_prompt_from_payload(self, payload) -> str:
+        """Extrait le contenu textuel d'un payload EventPayload de manière lisible."""
         try:
-            driver = GraphDatabase.driver(uri, auth=(user, password))
-            with driver.session() as session:
-                # Fusionner tous les noeuds contenant "Chevalière", "Bague" ou "Ring" (insensible à la casse)
-                # On trie par longueur décroissante pour garder le nom le plus précis comme ID principal
-                query = """
-                MATCH (n:Entity)
-                WHERE toLower(n.id) CONTAINS 'chevalière' OR toLower(n.id) CONTAINS 'bague' OR toLower(n.id) CONTAINS 'ring'
-                WITH n ORDER BY size(n.id) DESC
-                WITH collect(n) as nodes
-                WHERE size(nodes) > 1
-                CALL apoc.refactor.mergeNodes(nodes, {properties: 'discard', mergeRels: true}) YIELD node
-                RETURN count(node) as merged_count
-                """
-                result = session.run(query)
-                record = result.single()
-                if record:
-                    print(f"   → {record['merged_count']} groupe(s) de noeuds fusionnés.")
-                else:
-                    print("   → Aucun noeud à fusionner.")
-            driver.close()
+            # Essayer de récupérer formatted_prompt en premier
+            if "formatted_prompt" in payload:
+                return payload["formatted_prompt"]
+            
+            # Sinon, chercher les messages
+            if "messages" in payload:
+                messages = payload["messages"]
+                if isinstance(messages, list):
+                    text_parts = []
+                    for msg in messages:
+                        # Extraire le texte de chaque message
+                        if hasattr(msg, 'content'):
+                            text_parts.append(f"[{msg.role}]: {msg.content}")
+                        elif hasattr(msg, 'blocks'):
+                            for block in msg.blocks:
+                                if hasattr(block, 'text'):
+                                    text_parts.append(f"[{msg.role}]: {block.text}")
+                    return "\n\n".join(text_parts) if text_parts else str(payload)
+            
+            # Fallback : convertir en string simple
+            return str(payload)
         except Exception as e:
-            print(f"⚠️ Erreur lors de la résolution d'entités : {e}")
+            logger.warning(f"Erreur extraction prompt: {e}")
+            return str(payload)
+    
+    def _check_graph_exists(self) -> bool:
+        """Vérifie si un graphe existe déjà (Neo4j ou SimpleGraphStore)."""
+        if self.use_neo4j and NEO4J_AVAILABLE:
+            try:
+                # Vérifier si Neo4j a des nœuds
+                uri = "bolt://localhost:7687"
+                user = "neo4j"
+                password = "password"
+                
+                driver = GraphDatabase.driver(uri, auth=(user, password))
+                with driver.session() as session:
+                    result = session.run("MATCH (n) RETURN count(n) as count LIMIT 1")
+                    record = result.single()
+                    count = record["count"] if record else 0
+                driver.close()
+                
+                exists = count > 0
+                print(f"   Neo4j: {'✅ Graphe trouvé' if exists else '❌ Graphe vide'}")
+                return exists
+            except Exception as e:
+                logger.warning(f"Impossible de vérifier Neo4j: {e}")
+                return False
+        else:
+            # Pour SimpleGraphStore, vérifier si le fichier de store existe
+            graph_store_path = os.path.join(self.persist_dir, "graph_store.json")
+            exists = os.path.exists(graph_store_path)
+            print(f"   SimpleGraphStore: {'✅ Données trouvées' if exists else '❌ Pas de données'}")
+            return exists
+    
+    def _load_existing_indexes(self) -> None:
+        """Charge les index existants (vectoriel et graphe) depuis le stockage."""
+        try:
+            # Créer un contexte de stockage qui inclut notre graph_store
+            if self.use_neo4j and NEO4J_AVAILABLE:
+                # Recréer la connexion Neo4j
+                print(f"🕸️ Reconnexion à Neo4j...")
+                self.graph_store = Neo4jGraphStore(
+                    username="neo4j",
+                    password="password",
+                    url="bolt://localhost:7687",
+                    database="neo4j",
+                )
+                storage_context = StorageContext.from_defaults(graph_store=self.graph_store)
+            else:
+                storage_context = StorageContext.from_defaults(persist_dir=self.persist_dir)
+            
+            print("   → Chargement de l'index VECTORIEL...")
+            self.vector_index = load_index_from_storage(storage_context, index_id="vector_index")
+            
+            print("   → Chargement de l'index GRAPHE...")
+            self.graph_index = load_index_from_storage(storage_context, index_id="graph_index")
+            
+            print("✅ Index chargés avec succès.")
+            
+        except Exception as e:
+            logger.error(f"Erreur lors du chargement des index: {e}")
+            print(f"❌ Erreur: {e}")
+            print("   → Reconstruction complète nécessaire...")
+            self.force_rebuild = True
+            self.load_and_index()
 
-    def generate_graph_image(self, output_file="graphneo4j.png"):
-        """Génère une image PNG du graphe stocké dans Neo4j."""
+    def generate_graph_image(self, output_file="graph.png"):
+        """Génère une image PNG du graphe (fonctionne avec Neo4j ET SimpleGraphStore)."""
         print(f"\n🎨 Génération de l'image du graphe vers {output_file}...")
         
-        # Récupération des paramètres de connexion depuis le graph_store ou les attributs
-        # Ici on réutilise les valeurs par défaut ou passées au constructeur
-        # Note: Dans une implémentation plus propre, on stockerait ces infos
-        uri = "bolt://localhost:7687"
-        user = "neo4j"
-        password = "password"
-        
-        # On essaie de récupérer les infos du graph_store si c'est un Neo4jGraphStore
-        if hasattr(self.graph_store, 'url'):
-             uri = self.graph_store.url
-        if hasattr(self.graph_store, 'username'):
-             user = self.graph_store.username
-        if hasattr(self.graph_store, 'password'):
-             password = self.graph_store.password
-
         try:
-            driver = GraphDatabase.driver(uri, auth=(user, password))
+            G = nx.DiGraph()
             
-            with driver.session() as session:
-                # Récupérer tous les noeuds et relations
-                # Attention: sur un gros graphe, limiter le nombre de résultats !
-                result = session.run("MATCH (n)-[r]->(m) RETURN n.id as source, type(r) as relation, m.id as target LIMIT 100")
+            if self.use_neo4j and NEO4J_AVAILABLE:
+                # Récupérer depuis Neo4j
+                uri = "bolt://localhost:7687"
+                user = "neo4j"
+                password = "password"
                 
-                G = nx.DiGraph()
-                
-                count = 0
-                for record in result:
-                    count += 1
-                    source = record["source"]
-                    target = record["target"]
-                    relation = record["relation"]
-                    
-                    G.add_edge(source, target, label=relation)
-                
-                if count == 0:
-                    print("⚠️ Aucune relation trouvée dans Neo4j pour le dessin.")
-                    return
+                if hasattr(self.graph_store, 'url'): uri = self.graph_store.url
+                if hasattr(self.graph_store, 'username'): user = self.graph_store.username
+                if hasattr(self.graph_store, 'password'): password = self.graph_store.password
 
-                plt.figure(figsize=(12, 8))
-                pos = nx.spring_layout(G, k=0.5)
+                driver = GraphDatabase.driver(uri, auth=(user, password))
+                
+                with driver.session() as session:
+                    result = session.run("MATCH (n)-[r]->(m) RETURN n.id as source, type(r) as relation, m.id as target LIMIT 100")
+                    
+                    count = 0
+                    for record in result:
+                        count += 1
+                        source = record["source"]
+                        target = record["target"]
+                        relation = record["relation"]
+                        
+                        G.add_edge(source, target, label=relation)
+                    
+                    if count == 0:
+                        print("⚠️ Aucune relation trouvée dans Neo4j pour le dessin.")
+                        return
+                
+                driver.close()
+            else:
+                # Récupérer depuis SimpleGraphStore
+                if not hasattr(self.graph_index, 'graph_store') or self.graph_index.graph_store is None:
+                    print("⚠️ Aucun graph store disponible.")
+                    return
+                
+                graph_store = self.graph_index.graph_store
+                
+                # Récupérer tous les triplets du graphe
+                if hasattr(graph_store, 'data') and hasattr(graph_store.data, 'edges'):
+                    # SimpleGraphStore structure
+                    count = 0
+                    for source_id, targets in graph_store.data.edges.items():
+                        for target_id, relations in targets.items():
+                            for relation in relations:
+                                count += 1
+                                G.add_edge(source_id, target_id, label=relation)
+                                # Limiter pour éviter les graphes trop énormes
+                                if count > 100:
+                                    break
+                            if count > 100:
+                                break
+                        if count > 100:
+                            break
+                    
+                    if count == 0:
+                        print("⚠️ Aucune relation trouvée dans SimpleGraphStore pour le dessin.")
+                        return
+                else:
+                    print("⚠️ Structure de SimpleGraphStore non reconnue.")
+                    return
+            
+            # Dessiner le graphe
+            if G.number_of_nodes() > 0:
+                plt.figure(figsize=(14, 10))
+                pos = nx.spring_layout(G, k=0.5, iterations=50)
                 
                 nx.draw(G, pos, with_labels=True, node_color='lightblue', 
-                        node_size=2000, font_size=8, font_weight='bold', 
-                        arrows=True, edge_color='gray')
+                        node_size=2000, font_size=7, font_weight='bold', 
+                        arrows=True, edge_color='gray', arrowsize=15)
                 
                 edge_labels = nx.get_edge_attributes(G, 'label')
-                nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=7)
+                nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=6)
                 
-                plt.title("Graphe de Connaissances (Extrait)")
-                plt.savefig(output_file)
+                plt.title("Graphe de Connaissances")
+                plt.tight_layout()
+                
+                # Sauvegarder avec chemin absolu pour être sûr
+                abs_output = os.path.abspath(output_file)
+                plt.savefig(abs_output, dpi=150)
                 plt.close()
-                print(f"✅ Image sauvegardée : {output_file}")
+                print(f"✅ Image sauvegardée : {abs_output}")
+                
+                # Vérifier que le fichier existe vraiment
+                if os.path.exists(abs_output):
+                    print(f"   → Fichier confirmé : {os.path.getsize(abs_output)} octets")
+                else:
+                    print(f"   ⚠️ ATTENTION : Le fichier n'a pas été créé !")
+            else:
+                print("⚠️ Le graphe est vide, aucune image générée.")
                 
         except Exception as e:
             print(f"❌ Erreur lors de la génération de l'image : {e}")
@@ -437,7 +486,7 @@ class GraphRAGDemo:
              # On prend le dernier événement LLM
              last_event_start = current_events[-1][0]
              last_payload = last_event_start.payload
-             vec_prompt = last_payload.get("formatted_prompt", str(last_payload))
+             vec_prompt = self._extract_prompt_from_payload(last_payload)
         
         # Mise à jour de l'index pour la suite
         start_idx = len(current_events)
@@ -477,8 +526,8 @@ class GraphRAGDemo:
              for i in range(start_idx, len(current_events)):
                  event = current_events[i][0] # event_start
                  payload = event.payload
-                 p = payload.get("formatted_prompt", str(payload))
-                 graph_prompts.append(f"--- Event {i} ---\n{p}\n")
+                 p = self._extract_prompt_from_payload(payload)
+                 graph_prompts.append(f"--- Event {i-start_idx+1} ---\n{p}\n")
         
         graph_prompt = "\n".join(graph_prompts) if graph_prompts else "Pas de prompt trouvé"
 
@@ -516,6 +565,7 @@ def main():
     parser.add_argument("--neo4j", action="store_true", help="Utiliser Neo4j")
     parser.add_argument("--top-k", type=int, default=3, help="Nombre de chunks à récupérer (défaut: 3)")
     parser.add_argument("--reload", action="store_true", help="Recharger les index existants si possible")
+    parser.add_argument("--no-interactive", action="store_true", help="Passer le mode interactif")
     args = parser.parse_args()
     
     # Sélection automatique du provider si non spécifié
@@ -529,6 +579,10 @@ def main():
         reload=args.reload
     )
     
+    # Utiliser le flag reload pour forcer la reconstruction si demandé
+    if args.reload:
+        demo.force_rebuild = True
+    
     demo.load_and_index()
     
     # Questions de démonstration
@@ -538,8 +592,11 @@ def main():
     
     demo.query("Qui sont les personnages principaux ?")
     
-    # Mode interactif
-    demo.interactive_loop()
+    # Mode interactif (sauf si --no-interactive)
+    if not args.no_interactive:
+        demo.interactive_loop()
+    else:
+        print("\n✅ Démonstration terminée (mode interactif désactivé).")
 
 if __name__ == "__main__":
     main()

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Optional, Dict
 import os
 
+
 @dataclass
 class ProviderConfig:
     name: str
@@ -20,6 +21,7 @@ class ProviderConfig:
         if not self.api_key_env:
             return ""
         return os.getenv(self.api_key_env, "")
+
 
 # Registre des providers connus
 PROVIDERS: Dict[str, ProviderConfig] = {
@@ -59,12 +61,18 @@ PROVIDERS: Dict[str, ProviderConfig] = {
         model="Qwen3-30B",
         api_key_env="TEXTSYNTH_API_KEY",
     ),
+    "ILAAS_OSS": ProviderConfig(
+        name="ILASS_OSS",
+        url="https://llm.ilaas.fr/v1/chat/completions",
+        model="gpt-oss-120b",
+        api_key_env="ILAAS_API_KEY",
+    ),
 }
 
-#DEFAULT_PROVIDER = "MISTRAL_CODESTRAL"
-#DEFAULT_PROVIDER = "IRMA_LLMCODE"
-DEFAULT_PROVIDER = "MISTRAL_LARGE"
-#DEFAULT_PROVIDER = "LOCAL_QWEN_CODER"
+# DEFAULT_PROVIDER = "MISTRAL_CODESTRAL"
+# DEFAULT_PROVIDER = "IRMA_LLMCODE"
+DEFAULT_PROVIDER = "ILAAS_OSS"
+# DEFAULT_PROVIDER = "LOCAL_QWEN_CODER"
 
 
 def get_provider(name: Optional[str] = None,
@@ -82,7 +90,8 @@ def get_provider(name: Optional[str] = None,
     if name is None:
         name = DEFAULT_PROVIDER
     if name not in PROVIDERS:
-        raise ValueError(f"Provider inconnu: {name}. Providers disponibles: {list(PROVIDERS.keys())}")
+        raise ValueError(
+            f"Provider inconnu: {name}. Providers disponibles: {list(PROVIDERS.keys())}")
 
     base = PROVIDERS[name]
     model = override_model or base.model
@@ -90,5 +99,6 @@ def get_provider(name: Optional[str] = None,
     key = api_key if api_key is not None else base.api_key()
 
     return ProviderConfig(name=name, url=url, model=model, api_key_env=base.api_key_env)
+
 
 __all__ = ["ProviderConfig", "PROVIDERS", "get_provider", "DEFAULT_PROVIDER"]
