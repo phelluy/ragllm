@@ -251,12 +251,108 @@ class GraphRAGDemo:
         print("\n🕸️ Construction de l'index GRAPHE (Extraction des triplets)...")
         print("   (Ceci peut prendre du temps car le LLM doit extraire les entités)")
         
+        # Fonction personnalisée pour extraire et afficher les triplets (mots-clés)
+        def custom_extract_triplets(llm_response_str):
+            """
+            Parse la réponse du LLM pour extraire les triplets et les afficher.
+            Format attendu: (subject, predicate, object)
+            """
+            triplets = []
+            lines = llm_response_str.strip().split("\n")
+            print(f"\n🔍 Mots-clés/Triplets trouvés par le LLM :")
+            for line in lines:
+                # Nettoyage basique
+                line = line.strip()
+                if not line or line.startswith("(") or line.startswith("["):
+                    # Essayer de parser le format (s, p, o)
+                    try:
+                        # Enlever les parenthèses/crochets
+                        clean_line = line.strip("()[]")
+                        parts = [p.strip() for p in clean_line.split(",")]
+                        if len(parts) >= 3:
+                            subj, pred, obj = parts[0], parts[1], parts[2]
+                            print(f"   • {subj} -> {pred} -> {obj}")
+                            triplets.append((subj, pred, obj))
+                    except:
+                        pass
+            
+            # Si le parsing échoue ou si on veut utiliser le parsing par défaut de LlamaIndex,
+            # on peut retourner None ou essayer de faire mieux.
+            # Mais ici, KnowledgeGraphIndex attend une liste de triplets si on fournit la fonction.
+            
+            # NOTE: LlamaIndex a son propre parser interne complexe. 
+            # Si on fournit cette fonction, on remplace le parsing par défaut.
+            # Pour éviter de casser le parsing, on va faire un hack :
+            # On affiche juste, mais on retourne les triplets parsés manuellement.
+            # Si notre parsing est trop simple, on risque de perdre des données.
+            
+            # Alternative : Ne pas utiliser kg_triplet_extract_fn mais un callback ?
+            # Pas de callback simple pour ça.
+            
+            # Mieux : Utiliser le parser par défaut de LlamaIndex mais l'appeler nous-même ?
+            # Trop complexe sans accès aux classes internes.
+            
+            # Approche pragmatique : On fait un parsing robuste ici basé sur le prompt par défaut.
+            return triplets
+
+        # NOTE: Le prompt par défaut de LlamaIndex demande le format (subject, predicate, object)
+        # Donc notre parsing simple devrait fonctionner pour la plupart des cas.
+        
+        # Cependant, pour être sûr de ne rien casser, on va plutôt wrapper le LLM ? Non.
+        
+        # Prompt pour l'extraction
+        TRIPLET_EXTRACT_PROMPT = (
+            "Some text is provided below. Given the text, extract up to 10 knowledge triplets "
+            "in the form of (subject, predicate, object). Avoid stopwords.\n"
+            "---------------------\n"
+            "{text}\n"
+            "---------------------\n"
+            "Triplets:"
+        )
+
+        def custom_extract_triplets(text):
+            # Utiliser le LLM configuré pour extraire les triplets
+            prompt = TRIPLET_EXTRACT_PROMPT.format(text=text)
+            response = self.llm.complete(prompt)
+            response_text = response.text
+            
+            # Affichage pour l'utilisateur
+            print(f"\n🔍 Mots-clés/Triplets trouvés par le LLM :")
+            
+            triplets = []
+            import re
+            # Regex pour capturer (sujet, predicat, objet)
+            pattern = r"\((.*?),(.*?),(.*?)\)"
+            matches = re.findall(pattern, response_text)
+            
+            for match in matches:
+                subj, pred, obj = match[0].strip(), match[1].strip(), match[2].strip()
+                print(f"   • {subj} -> {pred} -> {obj}")
+                triplets.append((subj, pred, obj))
+            
+            if not triplets:
+                # Fallback: essayer de parser ligne par ligne si le format est différent
+                lines = response_text.strip().split('\n')
+                for line in lines:
+                    if "->" in line:
+                        parts = line.split("->")
+                        if len(parts) == 3:
+                            subj, pred, obj = parts[0].strip(), parts[1].strip(), parts[2].strip()
+                            print(f"   • {subj} -> {pred} -> {obj}")
+                            triplets.append((subj, pred, obj))
+            
+            if not triplets:
+                 print(f"   (Aucun triplet structuré trouvé. Réponse brute: {response_text[:100]}...)")
+            
+            return triplets
+
         self.graph_index = KnowledgeGraphIndex.from_documents(
             documents,
             storage_context=self.storage_context,
             max_triplets_per_chunk=10, 
             include_embeddings=True,
             show_progress=True,
+            kg_triplet_extract_fn=custom_extract_triplets, # Utilisation de notre extracteur
         )
         self.graph_index.set_index_id("graph_index")
         

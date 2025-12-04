@@ -46,3 +46,13 @@ models/
 
 # PDF conversion images
 *_images/
+
+# Project specific
+storage/
+graph.png
+test_graph.png
+prompt.txt
+debug_llm_response.txt
+output_*.log
+inspect_*.py
+toto
