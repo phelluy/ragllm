@@ -62,7 +62,16 @@ except ImportError:
 
 
 class HybridGraphRetriever(BaseRetriever):
-    """Retriever hybride qui combine les triplets du graphe ET le texte source des chunks."""
+    """Retriever hybride qui utilise le graphe pour découvrir des chunks pertinents.
+    
+    Stratégie (Option 2 - Graphe autonome avec expansion):
+    1. Le graphe identifie les triplets pertinents à la requête
+    2. On récupère les IDs des chunks sources de ces triplets
+    3. On charge le texte complet de ces chunks depuis l'index vectoriel
+    4. On retourne les chunks complets avec leurs triplets associés
+    
+    Cela garantit que chaque triplet est accompagné de son contexte textuel d'origine.
+    """
     
     def __init__(self, graph_index, vector_index, similarity_top_k: int = 3):
         self.graph_index = graph_index
@@ -71,37 +80,61 @@ class HybridGraphRetriever(BaseRetriever):
         super().__init__()
     
     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        """Récupère à la fois les triplets du graphe ET le texte des chunks pertinents."""
+        """Récupère les chunks via le graphe, puis charge leur texte source complet."""
         
-        # 1. Récupérer les triplets du graphe
+        # 1. Récupérer les triplets pertinents du graphe
         graph_retriever = self.graph_index.as_retriever(
             similarity_top_k=self.similarity_top_k,
-            include_text=True,
+            include_text=True,  # Inclure le texte source si disponible
         )
         graph_nodes = graph_retriever.retrieve(query_bundle)
         
-        # 2. Récupérer les chunks de texte via l'index vectoriel
-        vector_retriever = self.vector_index.as_retriever(
-            similarity_top_k=self.similarity_top_k
-        )
-        vector_nodes = vector_retriever.retrieve(query_bundle)
+        # 2. Extraire les IDs des chunks sources des triplets
+        source_node_ids = set()
+        triplet_nodes = []
         
-        # 3. Combiner les résultats
-        # On garde les chunks vectoriels avec leur texte complet
-        # et on ajoute les triplets du graphe comme contexte structuré
-        all_nodes = []
-        
-        # Ajouter d'abord les chunks de texte (source primaire)
-        all_nodes.extend(vector_nodes)
-        
-        # Ajouter ensuite les triplets du graphe comme contexte supplémentaire
-        # On peut formater les triplets de manière plus lisible
         for node in graph_nodes:
+            # Les triplets ont souvent un ref_doc_id qui pointe vers le chunk source
+            if hasattr(node.node, 'ref_doc_id') and node.node.ref_doc_id:
+                source_node_ids.add(node.node.ref_doc_id)
+            
+            # Garder aussi les triplets pour information structurée
             content = node.node.get_content()
-            # Si c'est un triplet, on le formate pour être plus lisible
             if "->" in content or "(" in content:
-                # C'est probablement un triplet, on le garde tel quel
-                all_nodes.append(node)
+                triplet_nodes.append(node)
+        
+        # 3. Récupérer les chunks sources complets depuis le docstore
+        all_nodes = []
+        docstore = self.vector_index.docstore
+        
+        for node_id in source_node_ids:
+            try:
+                # Récupérer le noeud complet avec son texte
+                source_node = docstore.get_node(node_id)
+                if source_node:
+                    # Créer un NodeWithScore pour maintenir la cohérence
+                    # Score = moyenne des scores des triplets issus de ce chunk
+                    related_triplet_scores = [
+                        n.score for n in graph_nodes 
+                        if hasattr(n.node, 'ref_doc_id') and n.node.ref_doc_id == node_id
+                    ]
+                    avg_score = sum(related_triplet_scores) / len(related_triplet_scores) if related_triplet_scores else 0.5
+                    
+                    all_nodes.append(NodeWithScore(node=source_node, score=avg_score))
+            except Exception as e:
+                logger.warning(f"Impossible de récupérer le chunk {node_id}: {e}")
+        
+        # 4. Ajouter les triplets comme contexte structuré supplémentaire
+        # (optionnel, pour que le LLM voie aussi les relations extraites)
+        all_nodes.extend(triplet_nodes)
+        
+        # 5. Si aucun chunk source trouvé via le graphe, fallback sur recherche vectorielle
+        if not all_nodes:
+            logger.info("Aucun chunk trouvé via le graphe, fallback sur recherche vectorielle")
+            vector_retriever = self.vector_index.as_retriever(
+                similarity_top_k=self.similarity_top_k
+            )
+            all_nodes = vector_retriever.retrieve(query_bundle)
         
         return all_nodes
 
