@@ -404,27 +404,48 @@ class GraphRAGDemo:
                 graph_store = self.graph_index.graph_store
                 
                 # Récupérer tous les triplets du graphe
-                if hasattr(graph_store, 'data') and hasattr(graph_store.data, 'edges'):
-                    # SimpleGraphStore structure
+                # Structure pour llama-index >= 0.10.x : _data.graph_dict
+                if hasattr(graph_store, '_data') and hasattr(graph_store._data, 'graph_dict'):
                     count = 0
-                    for source_id, targets in graph_store.data.edges.items():
-                        for target_id, relations in targets.items():
-                            for relation in relations:
+                    # graph_dict est de la forme {source_id: [[relation, target_id], ...]}
+                    for source_id, relations_list in graph_store._data.graph_dict.items():
+                        for item in relations_list:
+                            # item est généralement [relation, target_id]
+                            if len(item) >= 2:
+                                relation = item[0]
+                                target_id = item[1]
+                                
                                 count += 1
                                 G.add_edge(source_id, target_id, label=relation)
-                                # Limiter pour éviter les graphes trop énormes
+                                
                                 if count > 100:
                                     break
-                            if count > 100:
-                                break
                         if count > 100:
                             break
                     
                     if count == 0:
                         print("⚠️ Aucune relation trouvée dans SimpleGraphStore pour le dessin.")
                         return
+                elif hasattr(graph_store, 'data') and hasattr(graph_store.data, 'edges'):
+                    # Ancienne structure (fallback au cas où)
+                    count = 0
+                    for source_id, targets in graph_store.data.edges.items():
+                        for target_id, relations in targets.items():
+                            for relation in relations:
+                                count += 1
+                                G.add_edge(source_id, target_id, label=relation)
+                                if count > 100:
+                                    break
+                            if count > 100:
+                                break
+                        if count > 100:
+                            break
                 else:
                     print("⚠️ Structure de SimpleGraphStore non reconnue.")
+                    # Debug
+                    print(f"Dir graph_store: {dir(graph_store)}")
+                    if hasattr(graph_store, '_data'):
+                        print(f"Dir _data: {dir(graph_store._data)}")
                     return
             
             # Dessiner le graphe
