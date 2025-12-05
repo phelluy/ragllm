@@ -1,0 +1,1 @@
+La Griffe est une société secrète un peu spéciale, dont les membres sont triés sur le volet. Tous les sociétaires sont des voleurs. Mais attention, truands à la petite semaine, passez votre chemin! Pour entrer à La Griffe, il faut avoir commis des vols spectaculaires avec des butins élevés et avoir fait la une des journaux.

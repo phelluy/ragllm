@@ -1,1 +1,0 @@
-Le bal du Duc de Val-d'Ombre battait son plein. Les lustres de cristal illuminaient la salle de bal où la noblesse dansait. Lady Elara, vêtue de soie bleue, attendait impatiemment l'arrivée de son amant secret, le charmant Dorian. Elle espérait qu'il lui demanderait sa main ce soir.

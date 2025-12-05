@@ -1,1 +1,0 @@
-Dorian arriva enfin près d'Elara, le souffle court. Il l'entraîna dans une alcôve sombre pour l'embrasser. "Je suis désolé pour le retard, mon amour," murmura-t-il. En lui prenant la main, Elara sentit le métal froid d'un bijou qu'il portait à l'annulaire, une bague qu'elle ne lui avait jamais vue auparavant.

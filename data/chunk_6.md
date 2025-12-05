@@ -1,1 +1,0 @@
-Le Duc de Val-d'Ombre est un homme paranoïaque. Il soupçonne souvent ses rivaux politiques, notamment le Comte de Var, de vouloir saboter ses fêtes. Le Comte de Var, présent au bal, porte une cape noire et regarde tout le monde avec suspicion.

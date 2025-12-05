@@ -1,0 +1,1 @@
+Sophie retrouve son amant après le bal. Elle lui raconte que sa mère a été fortement affectée par le drame. Elle remarque que son amant porte une chevalière à tête de serpent qu'elle n'avait jamais vue avant.

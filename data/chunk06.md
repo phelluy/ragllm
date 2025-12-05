@@ -1,0 +1,1 @@
+Durant le bal, catastrophe! Un convive masqué a arraché le collier précieux de la Baronne, avant de s'enfuir en sautant par la fenêtre. Ce collier hors de prix était dans la famille depuis plusieurs générations.
