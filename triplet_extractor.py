@@ -34,20 +34,24 @@ class TripletExtractor:
         Returns:
             Liste de tuples (sujet, prédicat, objet)
         """
-        try:
-            prompt = TRIPLET_EXTRACT_PROMPT.format(text=text)
-            response = self.llm.complete(prompt)
-            response_text = response.text
-            
-            triplets = self._parse_triplets(response_text)
-            
-            if not triplets:
-                logger.debug(f"Aucun triplet extrait, response brute: {response_text[:100]}...")
-            
-            return triplets
-        except Exception as e:
-            logger.error(f"Erreur extraction LLM: {e}")
-            return []
+        retries = 3
+        for attempt in range(retries):
+            try:
+                prompt = TRIPLET_EXTRACT_PROMPT.format(text=text)
+                response = self.llm.complete(prompt)
+                response_text = response.text
+                
+                triplets = self._parse_triplets(response_text)
+                
+                if triplets:
+                    return triplets
+                
+                logger.warning(f"Tentative {attempt+1}/{retries} échouée : Aucun triplet extrait. Réponse brute : {response_text}")
+                
+            except Exception as e:
+                logger.error(f"Erreur extraction LLM (tentative {attempt+1}/{retries}): {e}")
+        
+        return []
 
     def _parse_triplets(self, response_text: str) -> List[Tuple[str, str, str]]:
         """

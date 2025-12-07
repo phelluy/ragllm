@@ -17,6 +17,7 @@ Prérequis :
 # IMPORTS STANDARDS
 # ============================================================================
 import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import sys
 import logging
 import argparse
@@ -60,8 +61,6 @@ import config
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -165,8 +164,18 @@ class GraphRAGDemo:
                 logger.warning("Neo4j demandé mais librairie manquante. Fallback sur SimpleGraphStore.")
                 self.graph_store = SimpleGraphStore()
             else:
-                if not reload and self.neo4j_manager.connect():
-                    self.neo4j_manager.clear_database()
+                # Tentative de connexion dans tous les cas
+                if self.neo4j_manager.connect():
+                    logger.info("✅ Connexion réussie à Neo4j.")
+                    # Si on ne recharge pas (donc on suppose un usage existant) et qu'on veut repartir de zéro,
+                    # le nettoyage se fera plus tard dans load_and_index si force_rebuild est True.
+                    # Ici on initialise juste le store.
+                    self.graph_store = Neo4jGraphStore(
+                        username=config.NEO4J_USER,
+                        password=config.NEO4J_PASSWORD,
+                        url=config.NEO4J_URL,
+                        database=config.NEO4J_DATABASE,
+                    )
                 else:
                     logger.warning("Impossible de se connecter à Neo4j. Fallback sur SimpleGraphStore.")
                     self.graph_store = SimpleGraphStore()
@@ -560,6 +569,26 @@ class GraphRAGDemo:
                 self.query(q)
 
 
+    def close(self):
+        """Ferme les connexions."""
+        # 1. Fermer notre manager personnalisé
+        if self.use_neo4j and self.neo4j_manager:
+            self.neo4j_manager.close()
+            
+        # 2. Fermer le graph store de LlamaIndex
+        if self.use_neo4j and self.graph_index:
+            try:
+                # Accès direct au store souvent nécessaire car LlamaIndex n'expose pas toujours close()
+                store = self.graph_index.graph_store
+                if hasattr(store, 'close'):
+                    store.close()
+                elif hasattr(store, '_driver'):
+                    store._driver.close()
+                    logger.debug("Driver Neo4jGraphStore fermé manuellement.")
+            except Exception as e:
+                logger.warning(f"Erreur fermeture Neo4jGraphStore: {e}")
+
+
 # ============================================================================
 # FONCTION PRINCIPALE
 # ============================================================================
@@ -612,21 +641,26 @@ def main():
         reload=args.reload
     )
 
-    if args.reload:
-        demo.force_rebuild = True
+    try:
+        if args.reload:
+            demo.force_rebuild = True
 
-    demo.load_and_index()
+        demo.load_and_index()
 
-    logger.info("="*60)
-    logger.info("DÉMONSTRATION AUTOMATIQUE")
-    logger.info("="*60)
+        logger.info("="*60)
+        logger.info("DÉMONSTRATION AUTOMATIQUE")
+        logger.info("="*60)
 
-    demo.query("Pourquoi se méfier de Jules ?")
+        demo.query("Pourquoi se méfier de Jules ?")
 
-    if not args.no_interactive:
-        demo.interactive_loop()
-    else:
-        logger.info("✅ Démonstration terminée (mode interactif désactivé).")
+        if not args.no_interactive:
+            demo.interactive_loop()
+        else:
+            logger.info("✅ Démonstration terminée (mode interactif désactivé).")
+            
+    finally:
+        if demo:
+            demo.close()
 
 
 if __name__ == "__main__":
