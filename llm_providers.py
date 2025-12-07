@@ -28,7 +28,8 @@ PROVIDERS: Dict[str, ProviderConfig] = {
     "MISTRAL_LARGE": ProviderConfig(
         name="MISTRAL_LARGE",
         url="https://api.mistral.ai/v1/chat/completions",
-        model="mistral-large-latest",
+        #model="mistral-large-latest",
+        model="ministral-8b-latest",
         api_key_env="MISTRAL_API_KEY",
     ),
     "MISTRAL_NEMO": ProviderConfig(
@@ -65,15 +66,16 @@ PROVIDERS: Dict[str, ProviderConfig] = {
         name="ILASS_OSS",
         url="https://llm.ilaas.fr/v1/chat/completions",
         model="gpt-oss-120b",
+        #model="qwen-3-30b",
         api_key_env="ILAAS_API_KEY",
     ),
 }
 
 # DEFAULT_PROVIDER = "MISTRAL_CODESTRAL"
 # DEFAULT_PROVIDER = "IRMA_LLMCODE"
-#DEFAULT_PROVIDER = "ILAAS_OSS"
+DEFAULT_PROVIDER = "ILAAS_OSS"
 # DEFAULT_PROVIDER = "LOCAL_QWEN_CODER"
-DEFAULT_PROVIDER = "MISTRAL_LARGE"
+#DEFAULT_PROVIDER = "MISTRAL_LARGE"
 
 
 def get_provider(name: Optional[str] = None,
