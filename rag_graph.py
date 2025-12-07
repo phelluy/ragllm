@@ -133,6 +133,7 @@ class GraphRAGDemo:
             is_chat_model=True,
             context_window=config.LLM_CONTEXT_WINDOW,
             max_tokens=config.LLM_MAX_TOKENS,
+            timeout=config.LLM_TIMEOUT,
         )
 
         # 2. Configuration de l'Embedding

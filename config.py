@@ -42,6 +42,7 @@ NEO4J_DATABASE = "neo4j"
 CHUNK_SIZE = 512
 LLM_CONTEXT_WINDOW = 4096
 LLM_MAX_TOKENS = 2048
+LLM_TIMEOUT = 60.0  # Suffisant pour la plupart des modèles
 
 # ============================================================================
 # CONFIGURATION STOCKAGE
