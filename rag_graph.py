@@ -13,28 +13,30 @@ Prérequis :
 - (Optionnel) Serveur Neo4j pour le stockage de graphe persistant.
 """
 
+# ============================================================================
+# IMPORTS STANDARDS
+# ============================================================================
 import os
 import sys
 import logging
 import argparse
-from typing import List, Optional
+from typing import Optional
+import matplotlib
+matplotlib.use('Agg')  # Backend non-interactif
+import matplotlib.pyplot as plt
 import networkx as nx
 
-# Forcer le backend matplotlib non-interactif AVANT d'importer pyplot
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-
-from neo4j import GraphDatabase
-
-# Désactiver le parallelisme des tokenizers pour éviter les avertissements de fork
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-# Configuration du logging pour voir ce qui se passe
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Imports LlamaIndex
+# ============================================================================
+# IMPORTS LLAMAINDEX
+# ============================================================================
+from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.core.schema import NodeWithScore
+from llama_index.core.retrievers import KnowledgeGraphRAGRetriever
+from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.llms.openai_like import OpenAILike
+from llama_index.core.prompts import PromptTemplate
+from llama_index.core.graph_stores import SimpleGraphStore
 from llama_index.core import (
     VectorStoreIndex,
     SimpleDirectoryReader,
@@ -42,22 +44,31 @@ from llama_index.core import (
     Settings,
     StorageContext,
     load_index_from_storage,
-    QueryBundle,
 )
-from llama_index.core.graph_stores import SimpleGraphStore
-from llama_index.core.prompts import PromptTemplate
-from llama_index.llms.openai_like import OpenAILike
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
-from llama_index.core.retrievers import BaseRetriever
-from llama_index.core.schema import NodeWithScore
-from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.core.retrievers import QueryFusionRetriever
+from llama_index.core.postprocessor import SentenceTransformerRerank
+
+# ============================================================================
+# IMPORTS PERSONNALISÉS
+# ============================================================================
+from entity_normalizer import EntityNormalizer
+from triplet_extractor import TripletExtractor
+from prompt_extractor import PromptExtractor
+from neo4j_manager import Neo4jManager
+import config
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Import du gestionnaire de providers existant
 try:
     from llm_providers import get_provider, PROVIDERS
 except ImportError:
-    # Fallback si lancé depuis un autre dossier
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
     from llm_providers import get_provider, PROVIDERS
 
@@ -69,625 +80,530 @@ except ImportError:
     NEO4J_AVAILABLE = False
 
 
-class HybridGraphRetriever(BaseRetriever):
-    """Retriever hybride qui combine les triplets du graphe ET le texte source des chunks."""
-    
-    def __init__(self, graph_index, vector_index, similarity_top_k: int = 3):
-        self.graph_index = graph_index
-        self.vector_index = vector_index
-        self.similarity_top_k = similarity_top_k
-        super().__init__()
-    
-    def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        """Récupère à la fois les triplets du graphe ET le texte des chunks pertinents."""
-        
-        # 1. Récupérer les triplets du graphe
-        graph_retriever = self.graph_index.as_retriever(
-            similarity_top_k=self.similarity_top_k,
-            include_text=True,
-        )
-        graph_nodes = graph_retriever.retrieve(query_bundle)
-        
-        # 2. Récupérer les chunks de texte via l'index vectoriel
-        vector_retriever = self.vector_index.as_retriever(
-            similarity_top_k=self.similarity_top_k
-        )
-        vector_nodes = vector_retriever.retrieve(query_bundle)
-        
-        # 3. Combiner les résultats
-        # On garde les chunks vectoriels avec leur texte complet
-        # et on ajoute les triplets du graphe comme contexte structuré
-        all_nodes = []
-        
-        # Ajouter d'abord les chunks de texte (source primaire)
-        all_nodes.extend(vector_nodes)
-        
-        # Ajouter ensuite les triplets du graphe comme contexte supplémentaire
-        # On peut formater les triplets de manière plus lisible
-        for node in graph_nodes:
-            content = node.node.get_content()
-            # Si c'est un triplet, on le formate pour être plus lisible
-            if "->" in content or "(" in content:
-                # C'est probablement un triplet, on le garde tel quel
-                all_nodes.append(node)
-        
-        return all_nodes
-
+# ============================================================================
+# CLASSE PRINCIPALE
+# ============================================================================
 
 class GraphRAGDemo:
+    """
+    Démonstrateur complet du RAG Graph avec LlamaIndex.
+    
+    Combine plusieurs techniques :
+    - Index vectoriel classique pour la similarité de texte
+    - Index graphe pour les relations entre entités
+    - Fusion des deux approches (QueryFusionRetriever)
+    - Reranking pour optimiser les résultats
+    """
+
     def __init__(
         self,
-        data_dir: str = "data",
+        data_dir: str = config.DEFAULT_DATA_DIR,
         provider_name: Optional[str] = None,
         use_neo4j: bool = False,
-        neo4j_url: str = "bolt://localhost:7687",
-        neo4j_user: str = "neo4j",
-        neo4j_password: str = "password",
-        top_k: int = 3,
+        top_k: int = 7,
         reload: bool = False,
-        persist_dir: str = "./storage",
+        persist_dir: str = config.DEFAULT_PERSIST_DIR,
     ):
+        """
+        Initialise le démonstrateur.
+        
+        Args:
+            data_dir: Dossier contenant les documents à indexer
+            provider_name: Nom du provider LLM (ex: MISTRAL_NEMO)
+            use_neo4j: Utiliser Neo4j au lieu de SimpleGraphStore
+            top_k: Nombre de chunks à récupérer (défaut: 7)
+            reload: Forcer la reconstruction des index
+            persist_dir: Dossier de stockage des index
+        """
         self.data_dir = data_dir
         self.top_k = top_k
         self.persist_dir = persist_dir
-        self.force_rebuild = False  # Flag pour forcer la reconstruction
-        
+        self.force_rebuild = reload
+
         # 1. Configuration du LLM via le provider existant
         provider_cfg = get_provider(name=provider_name)
-        print(f"🔌 Provider LLM : {provider_cfg.name} ({provider_cfg.model})")
-        
-        # LlamaIndex utilise OpenAILike pour les endpoints compatibles
-        # Note: api_base correspond à l'URL de base (sans /chat/completions)
+        logger.info(f"🔌 Provider LLM : {provider_cfg.name} ({provider_cfg.model})")
+
         api_base = provider_cfg.url.replace("/chat/completions", "")
         api_key = provider_cfg.api_key() or "fake-key"
-        
+
         self.llm = OpenAILike(
             model=provider_cfg.model,
             api_base=api_base,
             api_key=api_key,
             is_chat_model=True,
-            context_window=4096, # Ajuster selon le modèle
-            max_tokens=512,
+            context_window=config.LLM_CONTEXT_WINDOW,
+            max_tokens=config.LLM_MAX_TOKENS,
         )
-        
-        # 2. Configuration de l'Embedding (Local pour correspondre à la démo 1)
-        print("🧠 Chargement du modèle d'embedding (HuggingFace)...")
+
+        # 2. Configuration de l'Embedding
+        logger.info(f"🧠 Chargement du modèle d'embedding...")
         self.embed_model = HuggingFaceEmbedding(
-            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+            model_name=config.EMBEDDING_MODEL
         )
-        
+
         # Appliquer la configuration globale
         Settings.llm = self.llm
         Settings.embed_model = self.embed_model
-        Settings.chunk_size = 512
-        
-        # Configuration du Callback Manager pour le debug et la capture de prompt
+        Settings.chunk_size = config.CHUNK_SIZE
+
+        # Configuration du Callback Manager
         self.llama_debug = LlamaDebugHandler(print_trace_on_end=False)
         callback_manager = CallbackManager([self.llama_debug])
         Settings.callback_manager = callback_manager
         
+        # Initialiser les modules utilitaires
+        self.entity_normalizer = EntityNormalizer()
+        self.triplet_extractor = TripletExtractor(self.llm)
+        self.prompt_extractor = PromptExtractor()
+        self.neo4j_manager = Neo4jManager() if use_neo4j else None
+
         # 3. Configuration du Graph Store
         self.use_neo4j = use_neo4j
         if use_neo4j:
             if not NEO4J_AVAILABLE:
-                print("⚠️ Neo4j demandé mais librairie manquante ou erreur d'import. Fallback sur SimpleGraphStore.")
+                logger.warning("Neo4j demandé mais librairie manquante. Fallback sur SimpleGraphStore.")
                 self.graph_store = SimpleGraphStore()
             else:
-                print(f"🕸️ Connexion à Neo4j ({neo4j_url})...")
-                if not self.reload:
-                    self.clear_neo4j_database(neo4j_url, neo4j_user, neo4j_password)
-                try:
-                    self.graph_store = Neo4jGraphStore(
-                        username=neo4j_user,
-                        password=neo4j_password,
-                        url=neo4j_url,
-                        database="neo4j",
-                    )
-                except Exception as e:
-                    print(f"❌ Erreur connexion Neo4j: {e}. Fallback sur SimpleGraphStore.")
+                if not reload and self.neo4j_manager.connect():
+                    self.neo4j_manager.clear_database()
+                else:
+                    logger.warning("Impossible de se connecter à Neo4j. Fallback sur SimpleGraphStore.")
                     self.graph_store = SimpleGraphStore()
         else:
-            print("💾 Utilisation du stockage de graphe en mémoire (SimpleGraphStore).")
+            logger.info("💾 Utilisation du stockage de graphe en mémoire (SimpleGraphStore).")
             self.graph_store = SimpleGraphStore()
-            
-        self.storage_context = StorageContext.from_defaults(graph_store=self.graph_store)
-        
+
+        self.storage_context = StorageContext.from_defaults(
+            graph_store=self.graph_store)
+
         self.vector_index = None
         self.graph_index = None
 
-    def clear_neo4j_database(self, url, user, password):
-        """Vide la base de données Neo4j pour éviter les doublons."""
-        print("🧹 Nettoyage de la base Neo4j...")
-        try:
-            driver = GraphDatabase.driver(url, auth=(user, password))
-            with driver.session() as session:
-                session.run("MATCH (n) DETACH DELETE n")
-            print("   → Base vidée avec succès.")
-            driver.close()
-        except Exception as e:
-            print(f"⚠️ Attention: Impossible de vider Neo4j: {e}")
-
     def load_and_index(self):
-        """Charge les documents et construit les index (ou les recharge si déjà existants).
-        
-        Comportement :
-        - Par défaut : Si index existe → charge. Sinon → construit.
-        - Avec force_rebuild=True : Force la reconstruction complète.
         """
+        Charge les documents et construit les index.
         
-        # Déterminer si les index existent déjà
+        Stratégie :
+        - Vérifie si les index existent et les recharge si possible
+        - Sinon, construit les index depuis zéro
+        - Supporte la reconstruction forcée via self.force_rebuild
+        """
+
         if not self.force_rebuild:
-            graph_exists = self._check_graph_exists()
-            indexes_persisted = os.path.exists(self.persist_dir)
-            
-            # Si les index existent, les charger
-            if graph_exists and indexes_persisted:
-                print(f"\n✅ Index existants détectés. Chargement depuis le stockage...")
+            if self._check_graph_exists() and os.path.exists(self.persist_dir):
+                logger.info("✅ Index existants détectés. Chargement depuis le stockage...")
                 self._load_existing_indexes()
                 return
         else:
-            print(f"\n🔄 Reconstruction forcée demandée.")
-        
-        # Sinon, reconstruire tout
-        print(f"\n📂 Chargement des documents depuis {self.data_dir}...")
+            logger.info("🔄 Reconstruction forcée demandée.")
+
+        logger.info(f"📂 Chargement des documents depuis {self.data_dir}...")
         documents = SimpleDirectoryReader(self.data_dir).load_data()
-        print(f"   → {len(documents)} documents chargés.")
-        
-        # Vider Neo4j avant reconstruction
-        if self.use_neo4j and NEO4J_AVAILABLE:
-            print("🧹 Nettoyage de Neo4j avant reconstruction...")
-            self.clear_neo4j_database("bolt://localhost:7687", "neo4j", "password")
-        
-        # Construction de l'index Vectoriel
-        print("\n🚀 Construction de l'index VECTORIEL...")
+        logger.info(f"   → {len(documents)} documents chargés.")
+
+        # Nettoyage Neo4j avant reconstruction
+        if self.use_neo4j and self.neo4j_manager and self.neo4j_manager.is_connected():
+            self.neo4j_manager.clear_database()
+
+        # Construction de l'index vectoriel
+        logger.info("🚀 Construction de l'index VECTORIEL...")
         self.vector_index = VectorStoreIndex.from_documents(
             documents,
             storage_context=self.storage_context,
             show_progress=True
         )
         self.vector_index.set_index_id("vector_index")
-        
-        # Construction de l'index Graph
-        print("\n🕸️ Construction de l'index GRAPHE (Extraction des triplets)...")
-        print("   (Ceci peut prendre du temps car le LLM doit extraire les entités)")
-        
-        # Fonction personnalisée pour extraire et afficher les triplets (mots-clés)
-        def custom_extract_triplets(llm_response_str):
-            """
-            Parse la réponse du LLM pour extraire les triplets et les afficher.
-            Format attendu: (subject, predicate, object)
-            """
-            triplets = []
-            lines = llm_response_str.strip().split("\n")
-            print(f"\n🔍 Mots-clés/Triplets trouvés par le LLM :")
-            for line in lines:
-                # Nettoyage basique
-                line = line.strip()
-                if not line or line.startswith("(") or line.startswith("["):
-                    # Essayer de parser le format (s, p, o)
-                    try:
-                        # Enlever les parenthèses/crochets
-                        clean_line = line.strip("()[]")
-                        parts = [p.strip() for p in clean_line.split(",")]
-                        if len(parts) >= 3:
-                            subj, pred, obj = parts[0], parts[1], parts[2]
-                            print(f"   • {subj} -> {pred} -> {obj}")
-                            triplets.append((subj, pred, obj))
-                    except:
-                        pass
-            
-            # Si le parsing échoue ou si on veut utiliser le parsing par défaut de LlamaIndex,
-            # on peut retourner None ou essayer de faire mieux.
-            # Mais ici, KnowledgeGraphIndex attend une liste de triplets si on fournit la fonction.
-            
-            # NOTE: LlamaIndex a son propre parser interne complexe. 
-            # Si on fournit cette fonction, on remplace le parsing par défaut.
-            # Pour éviter de casser le parsing, on va faire un hack :
-            # On affiche juste, mais on retourne les triplets parsés manuellement.
-            # Si notre parsing est trop simple, on risque de perdre des données.
-            
-            # Alternative : Ne pas utiliser kg_triplet_extract_fn mais un callback ?
-            # Pas de callback simple pour ça.
-            
-            # Mieux : Utiliser le parser par défaut de LlamaIndex mais l'appeler nous-même ?
-            # Trop complexe sans accès aux classes internes.
-            
-            # Approche pragmatique : On fait un parsing robuste ici basé sur le prompt par défaut.
-            return triplets
 
-        # NOTE: Le prompt par défaut de LlamaIndex demande le format (subject, predicate, object)
-        # Donc notre parsing simple devrait fonctionner pour la plupart des cas.
-        
-        # Cependant, pour être sûr de ne rien casser, on va plutôt wrapper le LLM ? Non.
-        
-        # Prompt pour l'extraction
-        TRIPLET_EXTRACT_PROMPT = (
-            "Some text is provided below. Given the text, extract up to 10 knowledge triplets "
-            "in the form of (subject, predicate, object). Avoid stopwords.\n"
-            "---------------------\n"
-            "{text}\n"
-            "---------------------\n"
-            "Triplets:"
-        )
+        # Construction de l'index graphe
+        logger.info("🕸️ Construction de l'index GRAPHE (Extraction & Normalisation)...")
+        logger.info("   (Ceci peut prendre du temps car le LLM doit extraire les entités)")
 
-        def custom_extract_triplets(text):
-            # Utiliser le LLM configuré pour extraire les triplets
-            prompt = TRIPLET_EXTRACT_PROMPT.format(text=text)
-            response = self.llm.complete(prompt)
-            response_text = response.text
+        def custom_extract_and_normalize_triplets(text):
+            """Fonction customisée pour extraire et normaliser les triplets."""
+            # 1. Extraction via LLM
+            raw_triplets = self.triplet_extractor.extract_raw_triplets(text)
+
+            # 2. Normalisation des entités
+            normalized_triplets = []
+            logger.debug("🔍 Traitement d'un chunk :")
+            for subj, pred, obj in raw_triplets:
+                norm_subj = self.entity_normalizer.normalize(subj)
+                norm_obj = self.entity_normalizer.normalize(obj)
+                
+                if TripletExtractor.validate_triplet(norm_subj, pred, norm_obj):
+                    normalized_triplets.append((norm_subj, pred, norm_obj))
+                    logger.debug(f"   • {norm_subj} -> {pred} -> {norm_obj}")
             
-            # Affichage pour l'utilisateur
-            print(f"\n🔍 Mots-clés/Triplets trouvés par le LLM :")
-            
-            triplets = []
-            import re
-            # Regex pour capturer (sujet, predicat, objet)
-            pattern = r"\((.*?),(.*?),(.*?)\)"
-            matches = re.findall(pattern, response_text)
-            
-            for match in matches:
-                subj, pred, obj = match[0].strip(), match[1].strip(), match[2].strip()
-                print(f"   • {subj} -> {pred} -> {obj}")
-                triplets.append((subj, pred, obj))
-            
-            if not triplets:
-                # Fallback: essayer de parser ligne par ligne si le format est différent
-                lines = response_text.strip().split('\n')
-                for line in lines:
-                    if "->" in line:
-                        parts = line.split("->")
-                        if len(parts) == 3:
-                            subj, pred, obj = parts[0].strip(), parts[1].strip(), parts[2].strip()
-                            print(f"   • {subj} -> {pred} -> {obj}")
-                            triplets.append((subj, pred, obj))
-            
-            if not triplets:
-                 print(f"   (Aucun triplet structuré trouvé. Réponse brute: {response_text[:100]}...)")
-            
-            return triplets
+            return normalized_triplets
 
         self.graph_index = KnowledgeGraphIndex.from_documents(
             documents,
             storage_context=self.storage_context,
-            max_triplets_per_chunk=10, 
+            max_triplets_per_chunk=config.MAX_TRIPLETS_PER_CHUNK,
             include_embeddings=True,
             show_progress=True,
-            kg_triplet_extract_fn=custom_extract_triplets, # Utilisation de notre extracteur
+            kg_triplet_extract_fn=custom_extract_and_normalize_triplets,
         )
         self.graph_index.set_index_id("graph_index")
-        
-        print("✅ Indexation terminée.")
-        
-        # Persistance
-        print(f"\n💾 Sauvegarde des index dans {self.persist_dir}...")
+
+        logger.info("✅ Indexation terminée.")
+
+        # Afficher les statistiques de normalisation
+        stats = self.entity_normalizer.get_statistics()
+        logger.info(f"📊 Normalisation : {stats['canonical_entities']} entités canoniques, "
+                   f"{stats['total_mentions']} mentions totales")
+
+        # Sauvegarde
+        logger.info(f"💾 Sauvegarde des index dans {self.persist_dir}...")
         self.storage_context.persist(persist_dir=self.persist_dir)
-        print("   → Sauvegarde terminée.")
-        
-        # Générer l'image du graphe (pour Neo4j ET SimpleGraphStore)
+        logger.info("   → Sauvegarde terminée.")
+
         self.generate_graph_image()
-    
-    def _extract_prompt_from_payload(self, payload) -> str:
-        """Extrait le contenu textuel d'un payload EventPayload de manière lisible."""
-        try:
-            # Essayer de récupérer formatted_prompt en premier
-            if "formatted_prompt" in payload:
-                return payload["formatted_prompt"]
-            
-            # Sinon, chercher les messages
-            if "messages" in payload:
-                messages = payload["messages"]
-                if isinstance(messages, list):
-                    text_parts = []
-                    for msg in messages:
-                        # Extraire le texte de chaque message
-                        if hasattr(msg, 'content'):
-                            text_parts.append(f"[{msg.role}]: {msg.content}")
-                        elif hasattr(msg, 'blocks'):
-                            for block in msg.blocks:
-                                if hasattr(block, 'text'):
-                                    text_parts.append(f"[{msg.role}]: {block.text}")
-                    return "\n\n".join(text_parts) if text_parts else str(payload)
-            
-            # Fallback : convertir en string simple
-            return str(payload)
-        except Exception as e:
-            logger.warning(f"Erreur extraction prompt: {e}")
-            return str(payload)
-    
+
     def _check_graph_exists(self) -> bool:
-        """Vérifie si un graphe existe déjà (Neo4j ou SimpleGraphStore)."""
-        if self.use_neo4j and NEO4J_AVAILABLE:
-            try:
-                # Vérifier si Neo4j a des nœuds
-                uri = "bolt://localhost:7687"
-                user = "neo4j"
-                password = "password"
-                
-                driver = GraphDatabase.driver(uri, auth=(user, password))
-                with driver.session() as session:
-                    result = session.run("MATCH (n) RETURN count(n) as count LIMIT 1")
-                    record = result.single()
-                    count = record["count"] if record else 0
-                driver.close()
-                
-                exists = count > 0
-                print(f"   Neo4j: {'✅ Graphe trouvé' if exists else '❌ Graphe vide'}")
-                return exists
-            except Exception as e:
-                logger.warning(f"Impossible de vérifier Neo4j: {e}")
-                return False
+        """Vérifie si un graphe existe déjà."""
+        if self.use_neo4j and self.neo4j_manager and self.neo4j_manager.is_connected():
+            return self.neo4j_manager.graph_exists()
         else:
-            # Pour SimpleGraphStore, vérifier si le fichier de store existe
             graph_store_path = os.path.join(self.persist_dir, "graph_store.json")
-            exists = os.path.exists(graph_store_path)
-            print(f"   SimpleGraphStore: {'✅ Données trouvées' if exists else '❌ Pas de données'}")
-            return exists
-    
+            return os.path.exists(graph_store_path)
+
     def _load_existing_indexes(self) -> None:
-        """Charge les index existants (vectoriel et graphe) depuis le stockage."""
+        """
+        Charge les index existants (vectoriel et graphe) depuis le stockage.
+        
+        Gère les deux backends : Neo4j et SimpleGraphStore.
+        """
         try:
-            # Créer un contexte de stockage qui inclut notre graph_store
-            if self.use_neo4j and NEO4J_AVAILABLE:
-                # Recréer la connexion Neo4j
-                print(f"🕸️ Reconnexion à Neo4j...")
-                self.graph_store = Neo4jGraphStore(
-                    username="neo4j",
-                    password="password",
-                    url="bolt://localhost:7687",
-                    database="neo4j",
-                )
-                storage_context = StorageContext.from_defaults(graph_store=self.graph_store)
+            if self.use_neo4j and self.neo4j_manager:
+                if not self.neo4j_manager.is_connected():
+                    self.neo4j_manager.connect()
+                
+                if self.neo4j_manager.is_connected():
+                    logger.info("🕸️ Reconnexion à Neo4j...")
+                    self.graph_store = Neo4jGraphStore(
+                        username=config.NEO4J_USER,
+                        password=config.NEO4J_PASSWORD,
+                        url=config.NEO4J_URL,
+                        database=config.NEO4J_DATABASE,
+                    )
+                    storage_context = StorageContext.from_defaults(
+                        graph_store=self.graph_store)
+                else:
+                    logger.warning("Impossible de se connecter à Neo4j, utilisation du stockage local")
+                    storage_context = StorageContext.from_defaults(
+                        persist_dir=self.persist_dir)
             else:
-                storage_context = StorageContext.from_defaults(persist_dir=self.persist_dir)
-            
-            print("   → Chargement de l'index VECTORIEL...")
-            self.vector_index = load_index_from_storage(storage_context, index_id="vector_index")
-            
-            print("   → Chargement de l'index GRAPHE...")
-            self.graph_index = load_index_from_storage(storage_context, index_id="graph_index")
-            
-            print("✅ Index chargés avec succès.")
-            
+                storage_context = StorageContext.from_defaults(
+                    persist_dir=self.persist_dir)
+
+            logger.info("   → Chargement de l'index VECTORIEL...")
+            self.vector_index = load_index_from_storage(
+                storage_context, index_id="vector_index")
+
+            logger.info("   → Chargement de l'index GRAPHE...")
+            self.graph_index = load_index_from_storage(
+                storage_context, index_id="graph_index")
+
+            logger.info("✅ Index chargés avec succès.")
+
         except Exception as e:
             logger.error(f"Erreur lors du chargement des index: {e}")
-            print(f"❌ Erreur: {e}")
-            print("   → Reconstruction complète nécessaire...")
+            logger.info("   → Reconstruction complète nécessaire...")
             self.force_rebuild = True
             self.load_and_index()
 
-    def generate_graph_image(self, output_file="graph.png"):
-        """Génère une image PNG du graphe (fonctionne avec Neo4j ET SimpleGraphStore)."""
-        print(f"\n🎨 Génération de l'image du graphe vers {output_file}...")
+    def generate_graph_image(self, output_file: str = "graph.png"):
+        """
+        Génère une image PNG du graphe de connaissances.
         
+        Visualise les nœuds et relations du graphe de manière optimisée.
+        
+        Args:
+            output_file: Chemin de sortie du fichier PNG
+        """
+        logger.info(f"🎨 Génération de l'image du graphe vers {output_file}...")
         try:
             G = nx.DiGraph()
             
-            if self.use_neo4j and NEO4J_AVAILABLE:
-                # Récupérer depuis Neo4j
-                uri = "bolt://localhost:7687"
-                user = "neo4j"
-                password = "password"
-                
-                if hasattr(self.graph_store, 'url'): uri = self.graph_store.url
-                if hasattr(self.graph_store, 'username'): user = self.graph_store.username
-                if hasattr(self.graph_store, 'password'): password = self.graph_store.password
-
-                driver = GraphDatabase.driver(uri, auth=(user, password))
-                
-                with driver.session() as session:
-                    result = session.run("MATCH (n)-[r]->(m) RETURN n.id as source, type(r) as relation, m.id as target LIMIT 100")
-                    
-                    count = 0
-                    for record in result:
-                        count += 1
-                        source = record["source"]
-                        target = record["target"]
-                        relation = record["relation"]
-                        
-                        G.add_edge(source, target, label=relation)
-                    
-                    if count == 0:
-                        print("⚠️ Aucune relation trouvée dans Neo4j pour le dessin.")
-                        return
-                
-                driver.close()
+            # Extraction des relations selon le backend
+            if self.use_neo4j and self.neo4j_manager and self.neo4j_manager.is_connected():
+                self._load_graph_from_neo4j(G)
             else:
-                # Récupérer depuis SimpleGraphStore
-                if not hasattr(self.graph_index, 'graph_store') or self.graph_index.graph_store is None:
-                    print("⚠️ Aucun graph store disponible.")
-                    return
-                
+                self._load_graph_from_simple_store(G)
+            
+            # Rendu du graphe
+            if G.number_of_nodes() > 0:
+                self._render_graph(G, output_file)
+            else:
+                logger.warning("⚠️ Le graphe est vide.")
+        except Exception as e:
+            logger.error(f"❌ Erreur lors de la génération de l'image : {e}")
+
+    def _load_graph_from_neo4j(self, G: nx.DiGraph):
+        """Charge les données du graphe depuis Neo4j."""
+        try:
+            if self.neo4j_manager.driver:
+                with self.neo4j_manager.driver.session(database=config.NEO4J_DATABASE) as session:
+                    result = session.run(
+                        "MATCH (n)-[r]->(m) RETURN n.id as source, type(r) as relation, m.id as target LIMIT 100")
+                    for record in result:
+                        G.add_edge(record["source"], record["target"], label=record["relation"])
+        except Exception as e:
+            logger.warning(f"Erreur chargement Neo4j: {e}")
+
+    def _load_graph_from_simple_store(self, G: nx.DiGraph):
+        """Charge les données du graphe depuis SimpleGraphStore."""
+        try:
+            if hasattr(self.graph_index, 'graph_store') and self.graph_index.graph_store:
                 graph_store = self.graph_index.graph_store
-                
-                # Récupérer tous les triplets du graphe
-                # Structure pour llama-index >= 0.10.x : _data.graph_dict
                 if hasattr(graph_store, '_data') and hasattr(graph_store._data, 'graph_dict'):
                     count = 0
-                    # graph_dict est de la forme {source_id: [[relation, target_id], ...]}
                     for source_id, relations_list in graph_store._data.graph_dict.items():
                         for item in relations_list:
-                            # item est généralement [relation, target_id]
                             if len(item) >= 2:
                                 relation = item[0]
                                 target_id = item[1]
-                                
-                                count += 1
                                 G.add_edge(source_id, target_id, label=relation)
-                                
+                                count += 1
                                 if count > 100:
                                     break
                         if count > 100:
                             break
-                    
-                    if count == 0:
-                        print("⚠️ Aucune relation trouvée dans SimpleGraphStore pour le dessin.")
-                        return
-                elif hasattr(graph_store, 'data') and hasattr(graph_store.data, 'edges'):
-                    # Ancienne structure (fallback au cas où)
-                    count = 0
-                    for source_id, targets in graph_store.data.edges.items():
-                        for target_id, relations in targets.items():
-                            for relation in relations:
-                                count += 1
-                                G.add_edge(source_id, target_id, label=relation)
-                                if count > 100:
-                                    break
-                            if count > 100:
-                                break
-                        if count > 100:
-                            break
-                else:
-                    print("⚠️ Structure de SimpleGraphStore non reconnue.")
-                    # Debug
-                    print(f"Dir graph_store: {dir(graph_store)}")
-                    if hasattr(graph_store, '_data'):
-                        print(f"Dir _data: {dir(graph_store._data)}")
-                    return
-            
-            # Dessiner le graphe
-            if G.number_of_nodes() > 0:
-                plt.figure(figsize=(14, 10))
-                pos = nx.spring_layout(G, k=0.5, iterations=50)
-                
-                nx.draw(G, pos, with_labels=True, node_color='lightblue', 
-                        node_size=2000, font_size=7, font_weight='bold', 
-                        arrows=True, edge_color='gray', arrowsize=15)
-                
-                edge_labels = nx.get_edge_attributes(G, 'label')
-                nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=6)
-                
-                plt.title("Graphe de Connaissances")
-                plt.tight_layout()
-                
-                # Sauvegarder avec chemin absolu pour être sûr
-                abs_output = os.path.abspath(output_file)
-                plt.savefig(abs_output, dpi=150)
-                plt.close()
-                print(f"✅ Image sauvegardée : {abs_output}")
-                
-                # Vérifier que le fichier existe vraiment
-                if os.path.exists(abs_output):
-                    print(f"   → Fichier confirmé : {os.path.getsize(abs_output)} octets")
-                else:
-                    print(f"   ⚠️ ATTENTION : Le fichier n'a pas été créé !")
-            else:
-                print("⚠️ Le graphe est vide, aucune image générée.")
-                
         except Exception as e:
-            print(f"❌ Erreur lors de la génération de l'image : {e}")
+            logger.warning(f"Erreur chargement SimpleGraphStore: {e}")
+
+    def _render_graph(self, G: nx.DiGraph, output_file: str):
+        """Rend et sauvegarde le graphe en image."""
+        # Configuration de la figure
+        plt.figure(figsize=(24, 18))
+        pos = nx.spring_layout(G, k=2.5, iterations=200, seed=42, scale=2.0)
+
+        # Éléments visuels
+        nx.draw_networkx_nodes(G, pos, node_color='#A0CBE2', node_size=3000, alpha=0.9,
+                             edgecolors='white', linewidths=2)
+        
+        nx.draw_networkx_edges(G, pos, edge_color='#888888', arrows=True, arrowsize=25, 
+                             width=1.5, connectionstyle='arc3,rad=0.15', 
+                             min_source_margin=15, min_target_margin=15)
+        
+        nx.draw_networkx_labels(G, pos, font_size=9, font_weight='bold', font_color='black',
+                              bbox=dict(facecolor='white', edgecolor='none', alpha=0.7, pad=3.0))
+
+        edge_labels = nx.get_edge_attributes(G, 'label')
+        nx.draw_networkx_edge_labels(
+            G, pos, edge_labels=edge_labels, font_size=7, label_pos=0.5,
+            bbox=dict(facecolor='#EEEEEE', edgecolor='none', alpha=0.8, pad=1.0)
+        )
+        
+        plt.title("Graphe de Connaissances (Vue Optimisée)", fontsize=20)
+        plt.axis('off')
+        plt.tight_layout()
+        
+        abs_output = os.path.abspath(output_file)
+        plt.savefig(abs_output, dpi=150, bbox_inches='tight')
+        plt.close()
+        logger.info(f"✅ Image sauvegardée : {abs_output}")
 
     def query(self, question: str):
-        """Pose une question aux deux systèmes et compare."""
-        print(f"\n{'='*60}")
-        print(f"❓ QUESTION : {question}")
-        print(f"{'='*60}")
+        """
+        Pose une question aux deux systèmes et compare les résultats.
         
-        # Capture de l'état des logs avant la requête
+        Approches :
+        1. Recherche vectorielle classique
+        2. Approche graphe optimisée (fusion + reranking)
+        
+        Args:
+            question: La question à poser
+        """
+        logger.info("="*60)
+        logger.info(f"❓ QUESTION : {question}")
+        logger.info("="*60)
+
         start_idx = len(self.llama_debug.get_llm_inputs_outputs())
-        
+
         # 1. Recherche Vectorielle
-        print("\n--- 🔍 Approche VECTORIELLE ---")
-        vector_engine = self.vector_index.as_query_engine(similarity_top_k=self.top_k)
+        logger.info("--- 🔍 Approche VECTORIELLE ---")
+        vector_engine = self.vector_index.as_query_engine(
+            similarity_top_k=self.top_k)
         response_vec = vector_engine.query(question)
-        
-        print(f"Sources utilisées ({len(response_vec.source_nodes)} chunks) :")
+
+        logger.info(f"Sources utilisées ({len(response_vec.source_nodes)} chunks) :")
         for node in response_vec.source_nodes:
-            print(f"  - [Score {node.score:.2f}] {node.node.get_content()[:100]}...")
-            
-        print(f"\n💬 RÉPONSE VECTORIELLE :\n{response_vec}")
-        
-        # Capture du prompt Vectoriel
+            content_preview = node.node.get_content()[:100].replace('\n', ' ')
+            logger.info(f"  - [Score {node.score:.2f}] {content_preview}...")
+        logger.info(f"💬 RÉPONSE VECTORIELLE :\n{response_vec}")
+
+        # Capture prompt vectoriel
         current_events = self.llama_debug.get_llm_inputs_outputs()
-        vec_prompt = "Pas de prompt trouvé (peut-être pas d'appel LLM ?)"
+        vec_prompt = "Pas de prompt trouvé"
         if len(current_events) > start_idx:
-             # On prend le dernier événement LLM
-             last_event_start = current_events[-1][0]
-             last_payload = last_event_start.payload
-             vec_prompt = self._extract_prompt_from_payload(last_payload)
-        
-        # Mise à jour de l'index pour la suite
+            last_event = current_events[-1]
+            if isinstance(last_event, tuple) and len(last_event) > 0:
+                vec_prompt = self.prompt_extractor.extract_from_payload(last_event[0].payload)
+
         start_idx = len(current_events)
 
-        # 2. Recherche Graphe avec Retriever Hybride
-        print("\n--- 🕸️ Approche GRAPHE (Hybride: Triplets + Texte) ---")
-        
-        # Créer le retriever hybride qui combine graphe et vecteur
-        hybrid_retriever = HybridGraphRetriever(
-            graph_index=self.graph_index,
-            vector_index=self.vector_index,
+        # 2. Recherche Graphe Optimisée
+        logger.info("--- 🕸️ Approche GRAPHE Optimisée (Fusion + Reranking) ---")
+
+        # Retrievers
+        graph_retriever = KnowledgeGraphRAGRetriever(
+            storage_context=self.storage_context,
+            include_text=True,
+            verbose=True,
+            graph_traversal_depth=config.GRAPH_TRAVERSAL_DEPTH,
+            max_knowledge_sequence=config.MAX_KNOWLEDGE_SEQUENCE,
+        )
+
+        vector_retriever = self.vector_index.as_retriever(
             similarity_top_k=self.top_k
         )
-        
-        # Créer un query engine avec le retriever hybride
-        graph_engine = RetrieverQueryEngine.from_args(
-            retriever=hybrid_retriever,
-            response_mode="compact",
-        )
-        
-        response_graph = graph_engine.query(question)
-        
-        print(f"Sources utilisées (Texte + Triplets du graphe) :")
-        # LlamaIndex retourne des noeuds combinés
-        for i, node in enumerate(response_graph.source_nodes):
-             content = node.node.get_content()
-             label = "TRIPLET" if ("->" in content or "(" in content) else "TEXTE"
-             print(f"  [{label}] {content[:150]}...")
 
-        print(f"\n💬 RÉPONSE GRAPHE :\n{response_graph}")
+        # Fusion
+        logger.info("   → Fusion des résultats Graph + Vector...")
+        fusion_retriever = QueryFusionRetriever(
+            retrievers=[vector_retriever, graph_retriever],
+            similarity_top_k=self.top_k * 2,
+            num_queries=1,
+            mode="reciprocal_rerank",
+            use_async=False,
+            verbose=True,
+        )
+
+        # Reranking
+        logger.info("   → Reranking des résultats...")
+        reranker = SentenceTransformerRerank(
+            model=config.RERANKER_MODEL,
+            top_n=self.top_k,
+        )
+
+        # Query Engine avec prompt spécialisé
+        graph_engine = RetrieverQueryEngine.from_args(
+            retriever=fusion_retriever,
+            node_postprocessors=[reranker],
+            text_qa_template=PromptTemplate(config.GRAPH_QA_PROMPT),
+            response_mode="tree_summarize",
+            verbose=True
+        )
+
+        response_graph = graph_engine.query(question)
+
+        # Analyse des sources
+        logger.info("Sources finales utilisées (après fusion et reranking) :")
+        for node in response_graph.source_nodes:
+            content = node.node.get_content()[:100].replace('\n', ' ')
+            source_type = "TEXTE"
+            meta = node.node.metadata or {}
+            if "relationship" in str(meta) or "triplet" in str(meta) or "->" in content:
+                source_type = "GRAPHE"
+            logger.info(f"  [{source_type}] [Score {node.score:.2f}] {content}...")
+
+        if not response_graph.response or not str(response_graph).strip():
+            logger.warning(f"⚠️ RÉPONSE VIDE DÉTECTÉE. Contenu brut : {repr(response_graph)}")
         
-        # Capture du prompt Graphe
+        logger.info(f"💬 RÉPONSE GRAPHE :\n{response_graph.response}")
+
+        # Capture prompts Graphe
         current_events = self.llama_debug.get_llm_inputs_outputs()
         graph_prompts = []
         if len(current_events) > start_idx:
-             # On récupère TOUS les événements depuis le début de la requête graphe
-             for i in range(start_idx, len(current_events)):
-                 event = current_events[i][0] # event_start
-                 payload = event.payload
-                 p = self._extract_prompt_from_payload(payload)
-                 graph_prompts.append(f"--- Event {i-start_idx+1} ---\n{p}\n")
+            for i in range(start_idx, len(current_events)):
+                event = current_events[i]
+                if isinstance(event, tuple) and len(event) > 0:
+                    payload = event[0].payload
+                else:
+                    payload = getattr(event, 'payload', None)
+                
+                if payload:
+                    p = self.prompt_extractor.extract_from_payload(payload)
+                    graph_prompts.append(f"--- Event {i-start_idx+1} ---\n{p}\n")
         
         graph_prompt = "\n".join(graph_prompts) if graph_prompts else "Pas de prompt trouvé"
 
-        # Sauvegarde dans prompt.txt
+        # Sauvegarde des prompts
+        self._save_prompts(question, vec_prompt, graph_prompt)
+
+        logger.info("-"*60)
+
+    def _save_prompts(self, question: str, vec_prompt: str, graph_prompt: str):
+        """Sauvegarde les prompts dans un fichier pour analyse."""
         try:
             with open("prompt.txt", "w", encoding="utf-8") as f:
                 f.write(f"QUESTION: {question}\n\n")
                 f.write("="*40 + "\n")
-                f.write("APPROCHE VECTORIELLE (RAG Classique)\n")
+                f.write("APPROCHE VECTORIELLE\n")
                 f.write("="*40 + "\n")
                 f.write(vec_prompt + "\n\n")
                 f.write("="*40 + "\n")
-                f.write("APPROCHE GRAPHE (Graph RAG)\n")
+                f.write("APPROCHE GRAPHE OPTIMISEE\n")
                 f.write("="*40 + "\n")
                 f.write(graph_prompt + "\n")
-            print(f"\n📝 Prompts sauvegardés dans prompt.txt")
+            logger.info("📝 Prompts sauvegardés dans prompt.txt")
         except Exception as e:
-            print(f"⚠️ Erreur sauvegarde prompt.txt: {e}")
-        
-        # Comparaison (visuelle pour l'utilisateur)
-        print("\n" + "-"*60)
+            logger.warning(f"⚠️ Erreur sauvegarde prompt.txt: {e}")
 
     def interactive_loop(self):
-        print("\nMode interactif. Tapez 'q' pour quitter.")
+        """
+        Lance une boucle interactive pour poser des questions.
+        
+        Permet à l'utilisateur de poser plusieurs questions et d'explorer
+        les résultats du RAG Graph.
+        """
+        logger.info("Mode interactif. Tapez 'q' pour quitter.")
         while True:
-            q = input("\nVotre question : ")
+            q = input("\nVotre question : ").strip()
             if q.lower() in ['q', 'quit', 'exit']:
                 break
-            self.query(q)
+            if q:
+                self.query(q)
+
+
+# ============================================================================
+# FONCTION PRINCIPALE
+# ============================================================================
 
 def main():
-    parser = argparse.ArgumentParser(description="Demo RAG Graph vs Vector")
-    parser.add_argument("--data", default="data", help="Dossier de données")
-    parser.add_argument("--provider", help="Nom du provider LLM (ex: MISTRAL_NEMO)")
-    parser.add_argument("--neo4j", action="store_true", help="Utiliser Neo4j")
-    parser.add_argument("--top-k", type=int, default=3, help="Nombre de chunks à récupérer (défaut: 3)")
-    parser.add_argument("--reload", action="store_true", help="Recharger les index existants si possible")
-    parser.add_argument("--no-interactive", action="store_true", help="Passer le mode interactif")
+    """Entrée principale du programme."""
+    parser = argparse.ArgumentParser(
+        description="Demo RAG Graph vs Vector - Compare les deux approches"
+    )
+    parser.add_argument(
+        "--data",
+        default=config.DEFAULT_DATA_DIR,
+        help="Dossier de données"
+    )
+    parser.add_argument(
+        "--provider",
+        help="Nom du provider LLM (ex: MISTRAL_NEMO)"
+    )
+    parser.add_argument(
+        "--neo4j",
+        action="store_true",
+        help="Utiliser Neo4j pour le stockage de graphe"
+    )
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=7,
+        help="Nombre de chunks à récupérer (défaut: 7)"
+    )
+    parser.add_argument(
+        "--reload",
+        action="store_true",
+        help="Recharger les index existants si possible"
+    )
+    parser.add_argument(
+        "--no-interactive",
+        action="store_true",
+        help="Passer le mode interactif"
+    )
+    
     args = parser.parse_args()
-    
-    # Sélection automatique du provider si non spécifié
+
     provider = args.provider or os.getenv("LLM_PROVIDER")
-    
+
     demo = GraphRAGDemo(
         data_dir=args.data,
         provider_name=provider,
@@ -695,25 +611,24 @@ def main():
         top_k=args.top_k,
         reload=args.reload
     )
-    
-    # Utiliser le flag reload pour forcer la reconstruction si demandé
+
     if args.reload:
         demo.force_rebuild = True
-    
+
     demo.load_and_index()
-    
-    # Questions de démonstration
-    print("\n" + "="*60)
-    print("DÉMONSTRATION AUTOMATIQUE")
-    print("="*60)
-    
-    demo.query("Qui sont les personnages principaux ?")
-    
-    # Mode interactif (sauf si --no-interactive)
+
+    logger.info("="*60)
+    logger.info("DÉMONSTRATION AUTOMATIQUE")
+    logger.info("="*60)
+
+    demo.query("Pourquoi se méfier de Jules ?")
+
     if not args.no_interactive:
         demo.interactive_loop()
     else:
-        print("\n✅ Démonstration terminée (mode interactif désactivé).")
+        logger.info("✅ Démonstration terminée (mode interactif désactivé).")
+
 
 if __name__ == "__main__":
     main()
+
