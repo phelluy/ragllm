@@ -51,9 +51,14 @@ class PromptExtractor:
                     return text
 
             # Fallback
+            logger.info(f"DEBUG: Payload type: {type(payload)}")
+            logger.info(f"DEBUG: Payload attrs: {dir(payload)}")
+            if isinstance(payload, dict):
+                 logger.info(f"DEBUG: Payload keys: {payload.keys()}")
+            
             return str(payload)
         except Exception as e:
-            logger.debug(f"Erreur extraction prompt: {e}")
+            logger.error(f"Erreur extraction prompt: {e}")
             return str(payload)
 
     @staticmethod

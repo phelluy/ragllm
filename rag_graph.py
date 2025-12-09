@@ -448,11 +448,22 @@ class GraphRAGDemo:
 
         # Capture prompt vectoriel
         current_events = self.llama_debug.get_llm_inputs_outputs()
+        logger.info(f"DEBUG: Events count after Vector: {len(current_events)} (Start: {start_idx})")
         vec_prompt = "Pas de prompt trouvé"
+        
         if len(current_events) > start_idx:
             last_event = current_events[-1]
-            if isinstance(last_event, tuple) and len(last_event) > 0:
-                vec_prompt = self.prompt_extractor.extract_from_payload(last_event[0].payload)
+            # Fix: Handle tuple/list (legacy/container) and object (new) formats
+            if isinstance(last_event, (tuple, list)) and len(last_event) > 0:
+                event_obj = last_event[0]
+            else:
+                event_obj = last_event
+            
+            # logger.info(f"DEBUG: Last event type: {type(last_event)}")
+            if hasattr(event_obj, 'payload'):
+                vec_prompt = self.prompt_extractor.extract_from_payload(event_obj.payload)
+            else:
+                 logger.warning(f"DEBUG: Last event object {type(last_event)} has no payload. Content: {event_obj}")
 
         start_idx = len(current_events)
 
@@ -518,14 +529,18 @@ class GraphRAGDemo:
 
         # Capture prompts Graphe
         current_events = self.llama_debug.get_llm_inputs_outputs()
+        logger.info(f"DEBUG: Events count after Graph: {len(current_events)} (Start: {start_idx})")
         graph_prompts = []
         if len(current_events) > start_idx:
             for i in range(start_idx, len(current_events)):
                 event = current_events[i]
-                if isinstance(event, tuple) and len(event) > 0:
-                    payload = event[0].payload
+                if isinstance(event, (tuple, list)) and len(event) > 0:
+                    event_obj = event[0]
                 else:
-                    payload = getattr(event, 'payload', None)
+                    event_obj = event
+                
+                # Extraire le payload
+                payload = getattr(event_obj, 'payload', None)
                 
                 if payload:
                     p = self.prompt_extractor.extract_from_payload(payload)
