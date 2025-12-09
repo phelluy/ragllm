@@ -299,7 +299,8 @@ class GraphRAGDemo:
                         database=config.NEO4J_DATABASE,
                     )
                     storage_context = StorageContext.from_defaults(
-                        graph_store=self.graph_store)
+                        graph_store=self.graph_store,
+                        persist_dir=self.persist_dir)
                 else:
                     logger.warning("Impossible de se connecter à Neo4j, utilisation du stockage local")
                     storage_context = StorageContext.from_defaults(
