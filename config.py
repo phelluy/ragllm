@@ -15,7 +15,7 @@ ENTITY_NORMALIZER_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 # ============================================================================
 
 # Seuil de similarité pour la normalisation d'entités (0.0 à 1.0)
-ENTITY_SIMILARITY_THRESHOLD = 0.85
+ENTITY_SIMILARITY_THRESHOLD = 0.9
 
 # Nombre de triplets à extraire par chunk
 MAX_TRIPLETS_PER_CHUNK = 15

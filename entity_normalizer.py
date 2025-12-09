@@ -50,7 +50,7 @@ class EntityNormalizer:
             L'entité canonique (existante ou nouvelle)
         """
         # Nettoyage basique
-        entity_clean = entity.strip()
+        entity_clean = entity.strip().replace("_", " ")
         entity_lower = entity_clean.lower()
 
         # 1. Vérifier si c'est un alias connu (exact match, case insensitive)
