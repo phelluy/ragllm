@@ -1,1 +1,1 @@
-Sophie retrouve son amoureux après le bal. Elle lui raconte que sa mère a été fortement affectée par le drame. Elle remarque que son amoureux porte une chevalière à tête de serpent qu'elle n'avait jamais vue avant.
+Sophie retrouve Jules après le bal. Elle lui raconte que sa mère a été fortement affectée par le drame. Elle remarque que son amoureux porte une chevalière à tête de serpent qu'elle n'avait jamais vue avant.
