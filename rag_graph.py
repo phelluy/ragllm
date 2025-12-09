@@ -263,6 +263,9 @@ class GraphRAGDemo:
         stats = self.entity_normalizer.get_statistics()
         logger.info(f"📊 Normalisation : {stats['canonical_entities']} entités canoniques, "
                    f"{stats['total_mentions']} mentions totales")
+        
+        # Afficher le détail des regroupements
+        self.entity_normalizer.log_merges()
 
         # Sauvegarde
         logger.info(f"💾 Sauvegarde des index dans {self.persist_dir}...")

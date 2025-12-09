@@ -112,3 +112,24 @@ class EntityNormalizer:
             "total_mentions": total_aliases,
             "avg_aliases_per_entity": total_aliases / len(self.entity_index) if self.entity_index else 0
         }
+
+    def log_merges(self):
+        """Affiche les regroupements d'entités effectués."""
+        logger.info("="*50)
+        logger.info("🔁 REGROUPEMENTS D'ENTITÉS (Synonymes détectés)")
+        logger.info("="*50)
+        
+        found_merges = False
+        # Trier par nombre d'alias pour montrer les plus gros groupes en premier
+        sorted_entities = sorted(self.entity_index.items(), key=lambda x: len(x[1]), reverse=True)
+        
+        for canonical, aliases in sorted_entities:
+            # Filtrer pour ne garder que les variations (différentes du canonique)
+            variations = [a for a in aliases if a != canonical]
+            if variations:
+                found_merges = True
+                logger.info(f"🔹 [{canonical}] regroupe : {', '.join(variations)}")
+        
+        if not found_merges:
+            logger.info("Aucun regroupement significatif détecté.")
+        logger.info("="*50)
