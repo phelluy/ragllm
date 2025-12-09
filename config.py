@@ -21,7 +21,7 @@ ENTITY_SIMILARITY_THRESHOLD = 0.85
 MAX_TRIPLETS_PER_CHUNK = 15
 
 # Nombre de niveaux de profondeur à explorer dans le graphe
-GRAPH_TRAVERSAL_DEPTH = 2
+GRAPH_TRAVERSAL_DEPTH = 3
 
 # Nombre maximum de relations à inclure dans une séquence
 MAX_KNOWLEDGE_SEQUENCE = 30

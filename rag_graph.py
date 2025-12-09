@@ -452,18 +452,25 @@ class GraphRAGDemo:
         vec_prompt = "Pas de prompt trouvé"
         
         if len(current_events) > start_idx:
-            last_event = current_events[-1]
-            # Fix: Handle tuple/list (legacy/container) and object (new) formats
-            if isinstance(last_event, (tuple, list)) and len(last_event) > 0:
-                event_obj = last_event[0]
-            else:
-                event_obj = last_event
-            
-            # logger.info(f"DEBUG: Last event type: {type(last_event)}")
-            if hasattr(event_obj, 'payload'):
-                vec_prompt = self.prompt_extractor.extract_from_payload(event_obj.payload)
-            else:
-                 logger.warning(f"DEBUG: Last event object {type(last_event)} has no payload. Content: {event_obj}")
+            # Fix: Search backwards for the first valid event with payload
+            # Sometimes the very last event might be a generic event without payload
+            for i in range(len(current_events) - 1, start_idx - 1, -1):
+                event = current_events[i]
+                # Fix: Handle tuple/list (legacy/container) and object (new) formats
+                if isinstance(event, (tuple, list)) and len(event) > 0:
+                    event_obj = event[0]
+                else:
+                    event_obj = event
+                
+                if hasattr(event_obj, 'payload'):
+                    extracted = self.prompt_extractor.extract_from_payload(event_obj.payload)
+                    if extracted and "Pas de prompt trouvé" not in extracted:
+                         vec_prompt = extracted
+                         logger.info(f"DEBUG: Found Vector prompt in event index {i} (type: {type(event_obj)})")
+                         break
+                else:
+                     logger.debug(f"DEBUG: Event at index {i} skipped (no payload)")
+
 
         start_idx = len(current_events)
 
