@@ -51,7 +51,6 @@ models/
 storage/
 graph.png
 test_graph.png
-prompt.txt
 debug_llm_response.txt
 output_*.log
 inspect_*.py

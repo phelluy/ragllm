@@ -21,6 +21,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import sys
 import logging
 import argparse
+import time
 from typing import Optional
 import matplotlib
 matplotlib.use('Agg')  # Backend non-interactif
@@ -271,6 +272,10 @@ class GraphRAGDemo:
         logger.info(f"💾 Sauvegarde des index dans {self.persist_dir}...")
         self.storage_context.persist(persist_dir=self.persist_dir)
         logger.info("   → Sauvegarde terminée.")
+        
+        if self.use_neo4j and self.force_rebuild:
+            logger.info("⏳ Attente de synchronisation Neo4j (2s)...")
+            time.sleep(2)
 
         self.generate_graph_image()
 
@@ -579,7 +584,76 @@ class GraphRAGDemo:
             
             def _retrieve(self, query_bundle):
                 nodes = super()._retrieve(query_bundle)
-                logger.info(f"   → [Neo4jRetriever] {len(nodes)} nœuds récupérés. Récupération des chemins complets...")
+                logger.info(f"   → [Neo4jRetriever] {len(nodes)} nœuds récupérés.")
+
+                # Vérifier si on a vraiment trouvé des infos graphe (triplets)
+                has_graph_info = False
+                for node in nodes:
+                    if "kg_rel_map" in node.node.metadata and node.node.metadata["kg_rel_map"]:
+                        has_graph_info = True
+                        break
+
+                # FALLBACK: Si aucun nœud trouvé OU pas d'info graphe, on tente une recherche manuelle
+                if not nodes or not has_graph_info:
+                    logger.info("   → [Neo4jRetriever] Info graphe manquante. Tentative de Fallback (recherche manuelle)...")
+                    try:
+                        # Heuristique simple : mots avec majuscule (ex: Jules, Sophie)
+                        potential_entities = [w.strip("?,.!:'\"") for w in query_bundle.query_str.split() if w and w[0].isupper()]
+                        
+                        if potential_entities:
+                            from neo4j import GraphDatabase
+                            driver = GraphDatabase.driver(
+                                config.NEO4J_URL, auth=(config.NEO4J_USER, config.NEO4J_PASSWORD)
+                            )
+                            
+                            found_triplets = []
+                            unique_triplets = set()
+                            
+                            with driver.session(database=config.NEO4J_DATABASE) as session:
+                                for ent in potential_entities:
+                                    if len(ent) < 3: continue 
+                                    
+                                    # Recherche de l'entité (MATCH partiel, case insensitive)
+                                    # On cherche sur tous les labels pour être sûr
+                                    query_find = "MATCH (n) WHERE toLower(n.id) CONTAINS toLower($id) RETURN n.id as id LIMIT 1"
+                                    res = session.run(query_find, id=ent)
+                                    record = res.single()
+                                    
+                                    if record:
+                                        subj_id = record["id"]
+                                        logger.info(f"   → [Fallback] Entité identifiée : {subj_id}")
+                                        
+                                        # Récupérer le contexte (voisins)
+                                        # On utilise n.id pour le match exact maintenant que l'ID est retrouvé
+                                        query = (
+                                            f"MATCH p=(n {{id: $subj}})-[*1..{config.GRAPH_TRAVERSAL_DEPTH}]-(m) "
+                                            "UNWIND relationships(p) AS r "
+                                            "RETURN startNode(r).id AS start, type(r) AS rel, endNode(r).id AS end"
+                                        )
+                                        r_res = session.run(query, subj=subj_id)
+                                        for r in r_res:
+                                            t_str = f"{r['start']} -[{r['rel']}]-> {r['end']}"
+                                            if t_str not in unique_triplets:
+                                                found_triplets.append(t_str)
+                                                unique_triplets.add(t_str)
+                            
+                            driver.close()
+                            
+                            if found_triplets:
+                                header = f"The following are knowledge sequence in max depth {config.GRAPH_TRAVERSAL_DEPTH} in the form of directed graph like: `subject -[predicate]->, object, ...` extracted based on fallback search:"
+                                content = "\n".join([header] + found_triplets)
+                                
+                                from llama_index.core.schema import TextNode, NodeWithScore
+                                # Ajout du nœud de fallback à la liste existante
+                                fallback_node = TextNode(text=content)
+                                nodes.append(NodeWithScore(node=fallback_node, score=1.0))
+                                logger.info(f"   → [Neo4jRetriever] Fallback réussi : {len(found_triplets)} triplets récupérés.")
+                            else:
+                                logger.warning("   → [Neo4jRetriever] Fallback : Aucun triplet trouvé.")
+                    
+                    except Exception as e:
+                        logger.warning(f"   → [Neo4jRetriever] Erreur lors du Fallback: {e}")
+
                 
                 for node in nodes:
                     if "kg_rel_map" in node.node.metadata:
@@ -644,6 +718,7 @@ class GraphRAGDemo:
                         # Remplacer le nœud dans le résultat
                         node.node = corrected_node
                 
+                logger.info(f"   → [Neo4jRetriever] Total nodes retournés : {len(nodes)}")
                 return nodes
 
         # Retrievers - choisir le bon selon le backend
@@ -678,13 +753,79 @@ class GraphRAGDemo:
             use_async=False,
             verbose=True,
         )
+        fusion_retriever = QueryFusionRetriever(
+            retrievers=[vector_retriever, graph_retriever],
+            similarity_top_k=self.top_k * 2,
+            num_queries=1,
+            mode="reciprocal_rerank",
+            use_async=False,
+            verbose=True,
+        )
 
         # Reranking
-        logger.info("   → Reranking des résultats...")
-        reranker = SentenceTransformerRerank(
+        logger.info("   → Reranking des résultats (avec préservation du Graphe)...")
+        
+        from llama_index.core.postprocessor.types import BaseNodePostprocessor
+        from llama_index.core.schema import NodeWithScore
+        from typing import List, Optional
+
+        from llama_index.core.postprocessor.types import BaseNodePostprocessor
+        from llama_index.core.schema import NodeWithScore
+        from typing import List, Optional, Any
+        from pydantic import PrivateAttr, Field
+
+        class ForceGraphRerank(BaseNodePostprocessor):
+            """
+            Wrapper autour du Reranker pour s'assurer que les nœuds du Graphe 
+            ne sont pas filtrés s'ils sont jugés pertinents initialement.
+            """
+            # Déclaration des champs Pydantic
+            top_n: int = Field(description="Top K nodes to return")
+            _reranker: Any = PrivateAttr()
+
+            def __init__(self, reranker, top_n: int):
+                super().__init__(top_n=top_n)
+                self._reranker = reranker
+
+            def _postprocess_nodes(
+                self,
+                nodes: List[NodeWithScore],
+                query_bundle: Optional[object] = None,
+            ) -> List[NodeWithScore]:
+                # 1. Séparer les nœuds graphe des nœuds texte
+                graph_nodes = []
+                other_nodes = []
+                
+                for n in nodes:
+                    # Détection basée sur le contenu spécifique du prompt graphe
+                    if "knowledge sequence" in n.node.get_content():
+                        graph_nodes.append(n)
+                    else:
+                        other_nodes.append(n)
+                
+                # 2. Reranker uniquement les nœuds texte (ou tout, mais on sauve le graphe)
+                # On rerank tout pour avoir les scores comparables, mais on force l'inclusion
+                reranked_nodes = self._reranker.postprocess_nodes(nodes, query_bundle)
+                
+                # 3. Vérifier si les graphes sont là
+                final_ids = set(n.node.node_id for n in reranked_nodes)
+                
+                # Si des nœuds graphes ont été exclus, on les réinjecte (en remplaçant le pire score texte)
+                for g_node in graph_nodes:
+                    if g_node.node.node_id not in final_ids:
+                        if len(reranked_nodes) >= self.top_n:
+                            reranked_nodes.pop() # Enlever le dernier (pire score)
+                        reranked_nodes.append(g_node)
+                        logger.info("   → [ForceGraphRerank] Nœud Graphe réinjecté manuellement.")
+                
+                return reranked_nodes
+
+        base_reranker = SentenceTransformerRerank(
             model=config.RERANKER_MODEL,
             top_n=self.top_k,
         )
+        
+        reranker = ForceGraphRerank(base_reranker, top_n=self.top_k)
 
         # Query Engine avec prompt spécialisé
         graph_engine = RetrieverQueryEngine.from_args(
