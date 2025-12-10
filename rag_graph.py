@@ -481,19 +481,104 @@ class GraphRAGDemo:
         logger.info("--- 🕸️ Approche GRAPHE Optimisée (Fusion + Reranking) ---")
 
 
+        class CustomSimpleGraphStoreRetriever(KnowledgeGraphRAGRetriever):
+            """Retriever personnalisé pour SimpleGraphStore - BFS itérative comme Neo4j."""
+
+            def __init__(self, storage_context, **kwargs):
+                self.storage_context = storage_context
+                super().__init__(storage_context=storage_context, **kwargs)
+
+            def _retrieve(self, query_bundle):
+                nodes = super()._retrieve(query_bundle)
+                logger.info(f"   → [SimpleGraphStoreRetriever] {len(nodes)} nœuds récupérés. Exploration Graphique (NetworkX)...")
+
+                for node in nodes:
+                    if "kg_rel_map" in node.node.metadata:
+                        rel_map = node.node.metadata["kg_rel_map"]
+                        new_lines = [f"The following are knowledge sequence in max depth {config.GRAPH_TRAVERSAL_DEPTH} in the form of directed graph like: `subject -[predicate]->, object, ...` extracted based on key entities as subject:"]
+                        
+                        unique_triplets = set()
+                        
+                        try:
+                            # 1. Construction du graphe NetworkX depuis le store
+                            # Note: On accède aux données internes pour reconstruire le graphe en mémoire
+                            # Pour de gros graphes, ce serait inefficace, mais OK pour cette démo.
+                            G = nx.DiGraph()
+                            graph_store = self.storage_context.graph_store
+                            if hasattr(graph_store, '_data') and hasattr(graph_store._data, 'graph_dict'):
+                                for source_id, relations_list in graph_store._data.graph_dict.items():
+                                    for item in relations_list:
+                                        if len(item) >= 2:
+                                            relation = item[0]
+                                            target_id = item[1]
+                                            G.add_edge(source_id, target_id, label=relation)
+
+                            # 2. Exploration pour chaque sujet trouvé initialement
+                            subjects_to_explore = list(rel_map.keys())
+                            logger.debug(f"   → Subjects initiaux: {subjects_to_explore}")
+
+                            for subject in subjects_to_explore:
+                                if subject in G:
+                                    # nx.ego_graph avec undirected=True permet de récupérer les voisins 
+                                    # entrants ET sortants jusqu'à la profondeur voulue.
+                                    # Cela retourne un sous-graphe contenant les nœuds et les arêtes entre eux.
+                                    subgraph = nx.ego_graph(G, subject, radius=config.GRAPH_TRAVERSAL_DEPTH, center=True, undirected=True)
+                                    
+                                    # 3. Extraction des triplets du sous-graphe
+                                    # On itère sur les arêtes du sous-graphe qui conservent leur direction et attributs
+                                    for u, v, data in subgraph.edges(data=True):
+                                        pred = data.get('label', 'related_to')
+                                        triplet_str = f"{u} -[{pred}]-> {v}"
+                                        
+                                        if triplet_str not in unique_triplets:
+                                            new_lines.append(triplet_str)
+                                            unique_triplets.add(triplet_str)
+                        
+                        except Exception as e:
+                            logger.error(f"   → [SimpleGraphStoreRetriever] Erreur NetworkX: {e}")
+                            # Fallback: comportement par défaut (ce qui est dans rel_map)
+                            for subject, relations in rel_map.items():
+                                for rel in relations:
+                                    if len(rel) < 3: continue
+                                    current_subj = rel[0]
+                                    for k in range(1, len(rel), 2):
+                                        if k + 1 < len(rel):
+                                            pred = rel[k]
+                                            obj = rel[k+1]
+                                            t_str = f"{current_subj} -[{pred}]-> {obj}"
+                                            if t_str not in unique_triplets:
+                                                new_lines.append(t_str)
+                                                unique_triplets.add(t_str)
+                                            current_subj = obj
+
+                        # Remplacer complètement le contenu du nœud
+                        new_content = "\n".join(new_lines)
+                        from llama_index.core.schema import TextNode
+                        clean_metadata = {k: v for k, v in node.node.metadata.items() 
+                                         if k not in ['kg_rel_map', 'kg_rel_text']}
+                        corrected_node = TextNode(
+                            text=new_content,
+                            metadata=clean_metadata,
+                            id_=node.node.id_
+                        )
+                        node.node = corrected_node
+                
+                return nodes
+
         class CustomNeo4jRetriever(KnowledgeGraphRAGRetriever):
-            """Retriever personnalisé pour corriger le formatage des nœuds Neo4j."""
+            """Retriever personnalisé pour corriger le formatage des nœuds Neo4j - évite les raccourcis."""
             
             def _retrieve(self, query_bundle):
                 nodes = super()._retrieve(query_bundle)
-                logger.info(f"   → [CustomRetriever] {len(nodes)} nœuds récupérés. Correction du contenu...")
+                logger.info(f"   → [Neo4jRetriever] {len(nodes)} nœuds récupérés. Récupération des chemins complets...")
                 
                 for node in nodes:
                     if "kg_rel_map" in node.node.metadata:
                         rel_map = node.node.metadata["kg_rel_map"]
-                        new_lines = ["The following are knowledge sequence in max depth 3 in the form of directed graph like: `subject -[predicate]->, object, ...` extracted based on key entities as subject:"]
+                        new_lines = [f"The following are knowledge sequence in max depth {config.GRAPH_TRAVERSAL_DEPTH} in the form of directed graph like: `subject -[predicate]->, object, ...` extracted based on key entities as subject:"]
                         
                         unique_triplets = set()
+                        # D'abord ajouter les triplets directs du rel_map
                         for subject, relations in rel_map.items():
                             for rel in relations:
                                 current_subj = subject
@@ -502,25 +587,25 @@ class GraphRAGDemo:
                                     if k + 1 < path_len:
                                         pred = rel[k]
                                         obj = rel[k+1]
-                                        triplet = (current_subj, pred, obj)
-                                        triplet_str = str(triplet)
+                                        triplet_str = f"{current_subj} -[{pred}]-> {obj}"
                                         
                                         if triplet_str not in unique_triplets:
                                             new_lines.append(triplet_str)
                                             unique_triplets.add(triplet_str)
                                         
-                        # Extended Bidirectional Search
-                        # Use direct driver to find paths ignoring direction
+                                        # Avancer pour la prochaine itération
+                                        current_subj = obj
+                                        
+                        # Recherche Neo4j pour les chemins bidirectionnels ET les intermédiaires
                         try:
-                            # Access driver from config or create new lightweight connection
                             from neo4j import GraphDatabase
                             driver = GraphDatabase.driver(
                                 config.NEO4J_URL, auth=(config.NEO4J_USER, config.NEO4J_PASSWORD)
                             )
                             with driver.session(database=config.NEO4J_DATABASE) as session:
                                 for subj in rel_map.keys():
-                                    # Fetch all triplets in a 4-hop radius ignoring direction
-                                    # We retrieve individual relationships to form triplets
+                                    # Récupérer TOUS les chemins (ignorant la direction) 
+                                    # MAIS en conservant les intermédiaires
                                     query = (
                                         f"MATCH p=(n:Entity {{id: $subj}})-[*1..{config.GRAPH_TRAVERSAL_DEPTH}]-(m) "
                                         "UNWIND relationships(p) AS r "
@@ -528,27 +613,47 @@ class GraphRAGDemo:
                                     )
                                     result = session.run(query, subj=subj)
                                     for record in result:
-                                        t = (record["start"], record["rel"], record["end"])
-                                        t_str = str(t)
+                                        t_str = f"{record['start']} -[{record['rel']}]-> {record['end']}"
                                         if t_str not in unique_triplets:
                                             new_lines.append(t_str)
                                             unique_triplets.add(t_str)
                             driver.close()
                         except Exception as e:
-                            logger.error(f"   → [CustomRetriever] Error in bidirectional search: {e}")
+                            logger.debug(f"   → [Neo4jRetriever] Recherche bidirectionnelle échouée (peut être normal): {e}")
                             
                         new_content = "\n".join(new_lines)
-                        node.node.set_content(new_content)
+                        # Créer un nouveau nœud avec le contenu corrigé
+                        from llama_index.core.schema import TextNode
+                        # Nettoyer les métadonnées pour ne pas afficher kg_rel_map brut
+                        clean_metadata = {k: v for k, v in node.node.metadata.items() 
+                                         if k not in ['kg_rel_map', 'kg_rel_text']}
+                        corrected_node = TextNode(
+                            text=new_content,
+                            metadata=clean_metadata,
+                            id_=node.node.id_
+                        )
+                        # Remplacer le nœud dans le résultat
+                        node.node = corrected_node
+                
                 return nodes
 
-        # Retrievers
-        graph_retriever = CustomNeo4jRetriever(
-            storage_context=self.storage_context,
-            include_text=True,
-            verbose=True,
-            graph_traversal_depth=config.GRAPH_TRAVERSAL_DEPTH,
-            max_knowledge_sequence=config.MAX_KNOWLEDGE_SEQUENCE,
-        )
+        # Retrievers - choisir le bon selon le backend
+        if self.use_neo4j:
+            graph_retriever = CustomNeo4jRetriever(
+                storage_context=self.storage_context,
+                include_text=True,
+                verbose=True,
+                graph_traversal_depth=config.GRAPH_TRAVERSAL_DEPTH,
+                max_knowledge_sequence=config.MAX_KNOWLEDGE_SEQUENCE,
+            )
+        else:
+            graph_retriever = CustomSimpleGraphStoreRetriever(
+                storage_context=self.storage_context,
+                include_text=True,
+                verbose=True,
+                graph_traversal_depth=config.GRAPH_TRAVERSAL_DEPTH,
+                max_knowledge_sequence=config.MAX_KNOWLEDGE_SEQUENCE,
+            )
 
         vector_retriever = self.vector_index.as_retriever(
             similarity_top_k=self.top_k
