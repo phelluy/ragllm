@@ -482,7 +482,16 @@ class GraphRAGDemo:
 
 
         class CustomSimpleGraphStoreRetriever(KnowledgeGraphRAGRetriever):
-            """Retriever personnalisé pour SimpleGraphStore - BFS itérative comme Neo4j."""
+            """
+            Retriever personnalisé pour SimpleGraphStore utilisant NetworkX pour l'exploration.
+            
+            Contrairement à l'implémentation par défaut qui fait une simple recherche,
+            cette classe reconstruit un graphe NetworkX temporaire pour effectuer une
+            traversée bidirectionnelle (entrants + sortants) via `nx.ego_graph`.
+            
+            Cela permet d'obtenir une richesse de contexte comparable à Neo4j
+            même avec le stockage en mémoire simple.
+            """
 
             def __init__(self, storage_context, **kwargs):
                 self.storage_context = storage_context

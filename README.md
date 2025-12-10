@@ -7,23 +7,22 @@ Ce dépôt contient un cours d'introduction aux techniques de RAG (Retrieval-Aug
 
 ## Structure du projet
 
-```
 ragllm/
 ├── doc/                          # Documentation et slides
-│   └── slides_rag.typ           # Slides Typst (30 diapos)
-├── data/                         # Documents markdown pour indexation
-│   ├── introduction_rag.md      # Introduction au RAG
-│   ├── embeddings.md            # Les embeddings
-│   ├── bases_vectorielles.md    # Bases de données vectorielles
-│   ├── chunking.md              # Stratégies de découpage
-│   └── generation_llm.md        # Génération avec LLM
-├── data_big/                     # Documents volumineux (ex: romans)
-│   └── chartreuse_de_parme_stendhal.md
+│   ├── slides_rag.typ           # Slides Typst (Partie 1)
+│   └── slides_part2.typ         # Slides Typst (Partie 2 - Graphes)
+├── data/                         # Documents markdown (chunks)
+│   ├── chunk01.md               # ...
+│   └── ...
+├── data_big/                     # Documents volumineux
+│   └── le-rayon-vert-jules-verne.md
 ├── llm_providers.py             # Configuration modulaire des providers LLM
-├── rag_demo.py                  # Démonstration RAG en Python (script)
+├── rag_demo.py                  # Démonstration RAG Classique (Vector only)
+├── rag_graph.py                 # Démonstration Graph RAG (Vector + Graph)
 ├── rag_demo.ipynb               # Notebook Jupyter pour Colab
+├── config.py                    # Configuration globale
+├── neo4j_manager.py             # Gestionnaire de connexion Neo4j
 └── requirements.txt             # Dépendances Python
-```
 
 ## Installation
 
@@ -261,6 +260,26 @@ Les slides couvrent :
 - **Requests** : Appels aux APIs LLM
 - **Typst** : Système de composition des slides
 - **Google Colab** : Environnement notebook cloud (optionnel)
+
+## Utilisation de la démo Graph RAG (rag_graph.py)
+
+Ce dépôt contient aussi une démonstration avancée de **Graph RAG** utilisant LlamaIndex et NetworkX (ou Neo4j).
+
+### Fonctionnalités
+- **Construction de Graphe** : Extrait automatiquement des triplets (Sujet, Prédicat, Objet) depuis le texte.
+- **Stockage Hybride** : Compare les résultats entre une recherche vectorielle classique et une recherche par graphe.
+- **Exploration Bidirectionnelle** : Le retriever utilise une traversée de graphe intelligente (via NetworkX) pour explorer les relations entrantes et sortantes, garantissant un contexte complet même sans base de données graphe native.
+- **Visualisation** : Génère une image `graph.png` pour visualiser les connexions entre entités.
+
+### Lancer la démo
+```bash
+python rag_graph.py --no-interactive
+```
+
+Options utiles :
+- `--reload` : Force la reconstruction des index (utile si vous changez de données).
+- `--neo4j` : Utilise une base Neo4j locale au lieu du stockage en mémoire (NetworkX).
+- `--interactive` : Permet de poser vos propres questions après la démo.
 
 ## Configuration des providers LLM
 
