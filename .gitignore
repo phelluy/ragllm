@@ -48,10 +48,19 @@ models/
 *_images/
 
 # Project specific
-storage/
-graph.png
-test_graph.png
-debug_llm_response.txt
+# Exclude temp files
+prompt.txt
+prompt_*.txt
+output*.txt
+*.dump
+storage.tgz
+.zed/
+check_graph_links.py
+reproduce_retrieval.py
+test_triplet_format.py
+neosave/
+onechunk/
+langelot/
 output_*.log
 inspect_*.py
 toto

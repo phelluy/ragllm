@@ -7,7 +7,7 @@ Configuration centralisée pour le projet RAG Graph.
 # ============================================================================
 
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+RERANKER_MODEL = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
 ENTITY_NORMALIZER_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 
 # ============================================================================

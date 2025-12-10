@@ -267,18 +267,22 @@ Ce dépôt contient aussi une démonstration avancée de **Graph RAG** utilisant
 
 ### Fonctionnalités
 - **Construction de Graphe** : Extrait automatiquement des triplets (Sujet, Prédicat, Objet) depuis le texte.
-- **Stockage Hybride** : Compare les résultats entre une recherche vectorielle classique et une recherche par graphe.
-- **Exploration Bidirectionnelle** : Le retriever utilise une traversée de graphe intelligente (via NetworkX) pour explorer les relations entrantes et sortantes, garantissant un contexte complet même sans base de données graphe native.
+- **Stockage Hybride** : Supporte double backend : `SimpleGraphStore` (InMemory avec NetworkX) et `Neo4jGraphStore` (Base de données Graphe).
+- **Exploration Bidirectionnelle** : Le retriever utilise une traversée de graphe intelligente pour explorer les relations entrantes et sortantes.
+- **Robust Fallback (Neo4j)** : Mécanisme de recherche insensible à la casse pour garantir que les entités sont trouvées même si l'extraction initiale est imparfaite.
+- **Préservation du Graphe** : Logique de Reranking personnalisée (`ForceGraphRerank`) qui garantit que le contexte Graphe n'est jamais filtré par le Reranker, même si son score textuel est faible.
+- **Reranker Multilingue** : Utilisation d'un modèle Cross-Encoder fin-tuné pour le multilingue (mMARCO) pour une meilleure pertinence en français.
 - **Visualisation** : Génère une image `graph.png` pour visualiser les connexions entre entités.
 
 ### Lancer la démo
 ```bash
-python rag_graph.py --no-interactive
+python rag_graph.py --top-k 5 --no-interactive --neo4j
 ```
 
 Options utiles :
 - `--reload` : Force la reconstruction des index (utile si vous changez de données).
 - `--neo4j` : Utilise une base Neo4j locale au lieu du stockage en mémoire (NetworkX).
+- `--top-k` : Nombre de documents à récupérer (défaut 5).
 - `--interactive` : Permet de poser vos propres questions après la démo.
 
 ## Configuration des providers LLM
