@@ -65,16 +65,17 @@ PROVIDERS: Dict[str, ProviderConfig] = {
     "ILAAS_OSS": ProviderConfig(
         name="ILASS_OSS",
         url="https://llm.ilaas.fr/v1/chat/completions",
-        #model="gpt-oss-120b",
+        model="gpt-oss-120b",
         #model="qwen-3-30b",
-        model="mistral-small-3.2-24b",
+        #model="mistral-small-3.2-24b",
         api_key_env="ILAAS_API_KEY",
     ),
 }
 
 # DEFAULT_PROVIDER = "MISTRAL_CODESTRAL"
 # DEFAULT_PROVIDER = "IRMA_LLMCODE"
-DEFAULT_PROVIDER = "ILAAS_OSS"
+#DEFAULT_PROVIDER = "ILAAS_OSS"
+DEFAULT_PROVIDER = "MISTRAL_NEMO"
 # DEFAULT_PROVIDER = "LOCAL_QWEN_CODER"
 #DEFAULT_PROVIDER = "MISTRAL_LARGE"
 

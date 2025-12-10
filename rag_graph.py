@@ -480,8 +480,69 @@ class GraphRAGDemo:
         # 2. Recherche Graphe Optimisée
         logger.info("--- 🕸️ Approche GRAPHE Optimisée (Fusion + Reranking) ---")
 
+
+        class CustomNeo4jRetriever(KnowledgeGraphRAGRetriever):
+            """Retriever personnalisé pour corriger le formatage des nœuds Neo4j."""
+            
+            def _retrieve(self, query_bundle):
+                nodes = super()._retrieve(query_bundle)
+                logger.info(f"   → [CustomRetriever] {len(nodes)} nœuds récupérés. Correction du contenu...")
+                
+                for node in nodes:
+                    if "kg_rel_map" in node.node.metadata:
+                        rel_map = node.node.metadata["kg_rel_map"]
+                        new_lines = ["The following are knowledge sequence in max depth 3 in the form of directed graph like: `subject -[predicate]->, object, ...` extracted based on key entities as subject:"]
+                        
+                        unique_triplets = set()
+                        for subject, relations in rel_map.items():
+                            for rel in relations:
+                                current_subj = subject
+                                path_len = len(rel)
+                                for k in range(0, path_len, 2):
+                                    if k + 1 < path_len:
+                                        pred = rel[k]
+                                        obj = rel[k+1]
+                                        triplet = (current_subj, pred, obj)
+                                        triplet_str = str(triplet)
+                                        
+                                        if triplet_str not in unique_triplets:
+                                            new_lines.append(triplet_str)
+                                            unique_triplets.add(triplet_str)
+                                        
+                        # Extended Bidirectional Search
+                        # Use direct driver to find paths ignoring direction
+                        try:
+                            # Access driver from config or create new lightweight connection
+                            from neo4j import GraphDatabase
+                            driver = GraphDatabase.driver(
+                                config.NEO4J_URL, auth=(config.NEO4J_USER, config.NEO4J_PASSWORD)
+                            )
+                            with driver.session(database=config.NEO4J_DATABASE) as session:
+                                for subj in rel_map.keys():
+                                    # Fetch all triplets in a 4-hop radius ignoring direction
+                                    # We retrieve individual relationships to form triplets
+                                    query = (
+                                        f"MATCH p=(n:Entity {{id: $subj}})-[*1..{config.GRAPH_TRAVERSAL_DEPTH}]-(m) "
+                                        "UNWIND relationships(p) AS r "
+                                        "RETURN startNode(r).id AS start, type(r) AS rel, endNode(r).id AS end"
+                                    )
+                                    result = session.run(query, subj=subj)
+                                    for record in result:
+                                        t = (record["start"], record["rel"], record["end"])
+                                        t_str = str(t)
+                                        if t_str not in unique_triplets:
+                                            new_lines.append(t_str)
+                                            unique_triplets.add(t_str)
+                            driver.close()
+                        except Exception as e:
+                            logger.error(f"   → [CustomRetriever] Error in bidirectional search: {e}")
+                            
+                        new_content = "\n".join(new_lines)
+                        node.node.set_content(new_content)
+                return nodes
+
         # Retrievers
-        graph_retriever = KnowledgeGraphRAGRetriever(
+        graph_retriever = CustomNeo4jRetriever(
             storage_context=self.storage_context,
             include_text=True,
             verbose=True,
