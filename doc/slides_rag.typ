@@ -16,7 +16,6 @@
   subtitle: "Retrieval-Augmented Generation",
   authors: "Philippe Helluy",
 )
-
 // Diapositives de contenu, syntaxe typslides (slide(title: ...)[...])
 #slide(title: "Plan du cours")[
   1. Introduction et motivation
@@ -44,25 +43,25 @@
 
 #slide(title: "Le problème")[
   *Comment donner accès à des informations à jour ou spécifiques ?*
-  
 
-  
+
+
   Solutions possibles :
   - Ajouter des données dans le prompt ? → Limité par la taille du contexte
   - Ré-entraîner le modèle ? → Coûteux et lent
   - Fine-tuning ? → Limité, risque de _catastrophic forgetting_
-  - *RAG* → Léger, flexible, efficace
+  - *RAG* → Léger, flexible, efficace.
 ]
 
 #slide(title: "Qu'est-ce que le RAG ?")[
   *Retrieval-Augmented Generation*
-  
+
   Technique qui combine :
-  
+
   1. *Retrieval (Récupération)* : Sélection d'informations pertinentes dans une base de données
-  
+
   2. *Augmentation* : Enrichissement du contexte dans le prompt du LLM, sans dépassement de la taille maximale
-  
+
   3. *Generation* : Production de réponse par le LLM avec le contexte enrichi
 ]
 
@@ -96,29 +95,29 @@
       2. Embedding de la question
       3. Recherche de similarité
       4. Génération de réponse
-    ]
+    ],
   )
 ]
 
 #slide(title: "Phase 1 : Indexation")[
   *Préparation de la base de connaissances*
-  
+
   1. *Collecte* : Rassembler les documents (PDF, web, bases de données)
-  
+
   2. *Découpage* : Diviser en _chunks_ (morceaux) de taille appropriée
-  
+
   3. *Embedding* : Convertir chaque chunk en vecteur numérique
-  
+
   4. *Stockage* : Sauvegarder dans une base vectorielle
 ]
 
 #slide(title: "Qu'est-ce qu'un embedding ?")[
   *Représentation vectorielle d'un texte*
-  
+
   - Transformer le texte en vecteur de nombres réels avec un réseau de neurones (appelé encodeur ou modèle d'embedding)
   - Le vecteur est appelé _embedding_ (plongement en français)
   - Le modèle est entraîné pour que des textes similaires aient des embeddings proches dans l'espace vectoriel
-  
+
   Exemple :
   - "chat" et "félin" → vecteurs proches
   - "chat" et "voiture" → vecteurs éloignés
@@ -126,12 +125,12 @@
 
 #slide(title: "Modèles d'embedding")[
   *Exemples de modèles populaires :*
-  
+
   - Sentence-BERT (SBERT)
   - all-MiniLM-L6-v2
   - multilingual-e5-base
   - text-embedding-ada-002 (OpenAI)
-  
+
   *Caractéristiques importantes :*
   - Dimension du vecteur (384, 768, 1536...)
   - Support multilingue
@@ -140,12 +139,12 @@
 
 #slide(title: "Le chunking")[
   *Découpage des documents en morceaux*
-  
+
   Stratégies :
   - Par taille fixe (ex: 500 tokens)
   - Par paragraphe ou section
   - Avec chevauchement (_overlap_)
-  
+
   Compromis :
   - Chunks trop petits → perte de contexte
   - Chunks trop grands → dilution de l'information
@@ -153,55 +152,55 @@
 
 #slide(title: "Bases de données vectorielles")[
   *Stockage et recherche de vecteurs*
-  
+
   Quelques logiciels:
   - FAISS (Facebook AI)
   - Chroma
   - Pinecone
   - Weaviate
   - Milvus
-  
+
   Permettent une recherche efficace par similarité
 ]
 
 #slide(title: "Mesures de similarité")[
   *Comment comparer deux vecteurs ?*
-  
+
   1. *Similarité cosinus* : Angle entre vecteurs
      - Valeur entre -1 et 1
      - Indépendant de la magnitude
-  
+
   2. *Distance euclidienne* : Distance géométrique
 ]
 
 #slide(title: "Phase 2 : Récupération")[
   *Recherche de documents pertinents*
-  
+
   1. Recevoir la question de l'utilisateur
-  
+
   2. Générer l'embedding de la question
-  
+
   3. Calculer la similarité avec tous les chunks
-  
+
   4. Sélectionner les k chunks les plus similaires
-  
+
   Généralement : k = 3 à 5 documents. Si la base de données est grande, on peut augmenter k. Algorithme efficace de recherche (_Approximate Nearest Neighbors_, ANN).
 ]
 
 #slide(title: "Phase 3 : Génération")[
   *Construction du prompt augmenté*
-  
+
   ```
   Contexte:
   [Chunk 1 pertinent]
   [Chunk 2 pertinent]
   [Chunk 3 pertinent]
-  
+
   Question: [Question de l'utilisateur]
-  
-  Réponse: 
+
+  Réponse:
   ```
-  
+
   Le LLM complète et génère une réponse basée sur le contexte fourni (en plus de ses propres connaissances).
 ]
 
@@ -217,7 +216,7 @@
 
 //#slide(title: "Limites
 #slide(title: "Limites et défis")[
-  
+
   - Qualité dépend de la base de documents
   - Chunking optimal difficile à déterminer
   - Coût computationnel de l'embedding
@@ -226,11 +225,11 @@
   - Latence de récupération
 ]
 
-#slide(title:"Variantes et améliorations")[
- 
-  
+#slide(title: "Variantes et améliorations")[
+
+
   *Techniques avancées :*
-  
+
   - *HyDE* : Hypothetical Document Embeddings
   - *Re-ranking* : Réordonnancement des résultats
   - *Query expansion* : Enrichissement de la requête
@@ -240,7 +239,7 @@
 
 #slide[
   == RAG vs Fine-tuning
-  
+
   #table(
     columns: (1fr, 1fr, 1fr),
     [*Critère*], [*RAG*], [*Fine-tuning*],
@@ -254,9 +253,9 @@
 
 #slide[
   == Cas d'usage
-  
+
   *Où utiliser le RAG ?*
-  
+
   - Documentation technique (chatbot d'aide)
   - Support client (base de connaissances)
   - Recherche scientifique (analyse d'articles)
@@ -267,9 +266,9 @@
 
 #slide[
   == Frameworks et outils
-  
+
   *Bibliothèques Python populaires :*
-  
+
   - LangChain : Framework complet
   - LlamaIndex : Indexation et récupération
   - Haystack : Pipelines NLP
@@ -279,21 +278,21 @@
 
 #slide[
   == Pipeline RAG simple
-  
+
   ```python
   # 1. Charger documents
   documents = load_documents("data/")
-  
+
   # 2. Créer embeddings
   embeddings = create_embeddings(documents)
-  
+
   # 3. Stocker dans DB vectorielle
   vector_db = VectorStore(embeddings)
-  
+
   # 4. Requête
   query = "Ma question"
   docs = vector_db.search(query, k=3)
-  
+
   # 5. Générer réponse
   response = llm.generate(docs, query)
   ```
@@ -301,14 +300,14 @@
 
 #slide[
   == Évaluation d'un système RAG
-  
+
   *Métriques importantes :*
-  
+
   - *Précision* : Documents pertinents récupérés
   - *Rappel* : Tous les documents pertinents trouvés
   - *MRR* : Mean Reciprocal Rank
   - *NDCG* : Normalized Discounted Cumulative Gain
-  
+
   *Qualité de génération :*
   - Fidélité aux sources
   - Pertinence de la réponse
@@ -317,7 +316,7 @@
 
 #slide[
   == Considérations pratiques
-  
+
   1. Choisir la bonne taille de chunks
   2. Utiliser des embeddings adaptés à la langue
   3. *Nettoyer et prétraiter les documents*
@@ -329,7 +328,7 @@
 
 #slide[
   == En production
-  
+
   - *Scalabilité* : Gérer des millions de documents
   - *Performance* : Optimiser les temps de réponse
   - *Sécurité* : Contrôler l'accès aux documents
@@ -339,7 +338,7 @@
 
 #slide(title: "Tendances")[
 
-  
+
   - RAG multi-modal (texte + images)
   - RAG conversationnel (mémorisation)
   - Agents autonomes avec RAG
@@ -349,17 +348,15 @@
 
 #slide[
   == Travaux pratiques
-  
+
   *Nous allons voir :*
-  
+
   1. Chargement de documents markdown
   2. Génération d'embeddings
   3. Recherche par similarité
   4. Génération de réponse avec un LLM
-  
 
-  
+
+
   Code disponible dans `https://github.com/phelluy/ragllm`
 ]
-
-

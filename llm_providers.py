@@ -5,9 +5,10 @@ Chaque provider est défini par :
 - model : nom du modèle à utiliser
 - api_key_env : nom de la variable d'environnement contenant la clé (None si pas nécessaire)
 """
-from dataclasses import dataclass
-from typing import Optional, Dict
+
 import os
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 
 @dataclass
@@ -23,12 +24,13 @@ class ProviderConfig:
         return os.getenv(self.api_key_env, "")
 
 
+
 # Registre des providers connus
 PROVIDERS: Dict[str, ProviderConfig] = {
     "MISTRAL_LARGE": ProviderConfig(
         name="MISTRAL_LARGE",
         url="https://api.mistral.ai/v1/chat/completions",
-        #model="mistral-large-latest",
+        # model="mistral-large-latest",
         model="ministral-8b-latest",
         api_key_env="MISTRAL_API_KEY",
     ),
@@ -65,25 +67,28 @@ PROVIDERS: Dict[str, ProviderConfig] = {
     "ILAAS_OSS": ProviderConfig(
         name="ILASS_OSS",
         url="https://llm.ilaas.fr/v1/chat/completions",
-        model="gpt-oss-120b",
-        #model="qwen-3-30b",
-        #model="mistral-small-3.2-24b",
+        # model="gpt-oss-120b",
+        model="qwen-3-30b",
+        # model="mistral-small-3.2-24b",
         api_key_env="ILAAS_API_KEY",
     ),
 }
 
 # DEFAULT_PROVIDER = "MISTRAL_CODESTRAL"
 # DEFAULT_PROVIDER = "IRMA_LLMCODE"
-#DEFAULT_PROVIDER = "ILAAS_OSS"
-DEFAULT_PROVIDER = "MISTRAL_NEMO"
+DEFAULT_PROVIDER = "ILAAS_OSS"
+# DEFAULT_PROVIDER = "MISTRAL_NEMO"
 # DEFAULT_PROVIDER = "LOCAL_QWEN_CODER"
-#DEFAULT_PROVIDER = "MISTRAL_LARGE"
+# DEFAULT_PROVIDER = "MISTRAL_LARGE"
+# DEFAULT_PROVIDER = "PALGANIA_QWEN3"
 
 
-def get_provider(name: Optional[str] = None,
-                 override_model: Optional[str] = None,
-                 override_url: Optional[str] = None,
-                 api_key: Optional[str] = None) -> ProviderConfig:
+def get_provider(
+    name: Optional[str] = None,
+    override_model: Optional[str] = None,
+    override_url: Optional[str] = None,
+    api_key: Optional[str] = None,
+) -> ProviderConfig:
     """Retourne la configuration d'un provider.
 
     Args:
@@ -96,7 +101,8 @@ def get_provider(name: Optional[str] = None,
         name = DEFAULT_PROVIDER
     if name not in PROVIDERS:
         raise ValueError(
-            f"Provider inconnu: {name}. Providers disponibles: {list(PROVIDERS.keys())}")
+            f"Provider inconnu: {name}. Providers disponibles: {list(PROVIDERS.keys())}"
+        )
 
     base = PROVIDERS[name]
     model = override_model or base.model
