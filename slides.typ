@@ -85,6 +85,10 @@
   - *Format JSON* : Données stockées sous forme de documents hiérarchiques.
   - *Schéma Flexible* : Chaque document peut avoir une structure différente.
   - *Dénormalisation* : On stocke les données liées ensemble (ex: les animaux DANS l'objet client).
+  *Avantages* :
+  - Récupération rapide des objets complets (pas de jointure)
+  - Flexibilité pour l'évolution du schéma
+  - Performance en lecture
 ]
 
 #slide(title: "Exemple JSON (Miroir du SQL)")[
@@ -99,7 +103,7 @@
     ]
   }
   ```
-  *Avantage* :
+  *Avantage* : plus souple si on veut ajouter des items (la nationalité, par exemple)
 ]
 
 #slide(title: "Requêtes MongoDB (MQL)")[
@@ -122,7 +126,7 @@
 ]
 
 #slide(title: "Python et MongoDB (PyMongo)")[
-  Libreirie `pymongo` pour l'interaction.
+  Librairie `pymongo` pour l'interaction.
 
   ```python
   from pymongo import MongoClient
@@ -216,6 +220,7 @@
 
   with driver.session() as session:
       friends = session.execute_read(get_friends, "Jean")
+  driver.close()
   ```
 ]
 
@@ -278,8 +283,9 @@
 
   *Objectif* : Maximiser $"sim"(A, P)$ et minimiser $"sim"(A, N)$.
 
-  On minimise la *Triplet Loss* avec une marge $alpha$:
+  On minimise la *Triplet Loss* avec une marge $alpha$ (écart minimal imposé) :
   $ cal(L) = max(0, "sim"(A, N) - "sim"(A, P) + alpha) $
+  $=>$ On veut que $ "sim"(A, P) > "sim"(A, N) + alpha $.
 ]
 
 #slide(title: [Algorithme 1: Ranking (Bi-Encoder)])[
@@ -418,16 +424,15 @@
   ]
 ]
 
-#slide(title: "Conclusion : L'avenir de la Data")[
-  - Les bases de données ne servent plus juste à *stocker* des lignes.
-  - Elles deviennent le *cerveau* (mémoire long terme) des IA.
-  - La compétence hybride *Data Engineer + AI Engineer* est cruciale : savoir structurer la donnée (Graphe/SQL) pour qu'elle soit "consommable" par un LLM.
+#slide(title: "Dernières tendances")[
+  - Les LLM ont des contextes de plus en plus grand (1 M tokens).
+  - Le RAG a moins le vent en poupe.
+  - On utilise de plus en plus des agents pour fouiller dans les données de façon itérative.
+  - Les données sont donc stockées sous divers formats à l'extérieur du prompt.
+  - On ne pose plus la question à un LLM mais à un agent IA: Google Antigravity, Microsoft Copilot, mistral-vibe, _etc._
 ]
 
-#slide[
-  #align(center + horizon)[
-    *Merci de votre attention !*
-
-    Questions ?
-  ]
+#slide(title: "Bibliographie")[
+  #bibliography("rag.bib", full: true, style: "ieee")
 ]
+
