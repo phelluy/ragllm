@@ -393,7 +393,7 @@
 ]
 
 #slide(title: "Exemple avec LlamaIndex (Voir `rag_graph.py`)")[
-  #text(size: 18pt)[
+  #text(size: 16pt)[
     ```python
     from llama_index.core import KnowledgeGraphIndex, SimpleDirectoryReader
 
