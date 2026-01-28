@@ -64,6 +64,14 @@ class SimpleRAG:
         self.api_key = self._provider_cfg.api_key_env and os.getenv(self._provider_cfg.api_key_env, "") or ""
         self.use_api = True  # Toujours via API pour la génération
 
+
+        print("Paramètres d'initialisation:")
+        print(f"  - data_dir: {data_dir}")
+        print(f"  - provider_name: {provider_name}")
+        print(f"  - override_model: {override_model}")
+        print(f"  - override_url: {override_url}")
+        print("-" * 30)
+
         print(f"Provider sélectionné: {provider_name or self._provider_cfg.name} | URL: {self.api_url} | Modèle: {self.model}")
         if self._provider_cfg.api_key_env:
             if not self.api_key:
@@ -337,7 +345,7 @@ def main():
     print("="*70)
     
     example_queries = [
-        "D'après les textes, pourquoi Lady Elara devrait-elle craindre que Dorian soit impliqué dans le vol du collier ?",
+        "D'après les textes, pourquoi Sophie devrait-elle craindre que Jules soit impliqué dans le vol du collier ?",
     ]
     
     for query in example_queries:
