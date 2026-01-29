@@ -317,7 +317,7 @@
 
 
 #slide(title: "Limites du Bi-Encoder (Vecteurs)")[
-  Le modèle vectoriel ("Bi-Encoder") compresse chaque phrase *séparément*. Il perd les nuances syntaxiques fines.
+  Le modèle vectoriel ("Bi-Encoder") compresse chaque phrase *séparément*. Il perd les nuances syntaxiques croisées.
 
   *Exemple piège* :
   - *Question* ($q$) : "Qui a mangé la souris ?"
@@ -325,7 +325,7 @@
   - *Doc 2* ($d_2$) : "Une fois, une souris a mangé un python." (Anecdotique)
 
   $=>$ Le Bi-Encoder va exprimer une forte similarité entre $d_1$ et $d_2$ (mêmes mots clés).
-  $=>$ Nécessité d'un *Cross-Encoder* pour inspecter les deux phrases ensemble et détecter l'inversion.
+  $=>$ Nécessité d'un *Cross-Encoder* pour inspecter les deux phrases ensemble et affiner le score de pertinence.
 ]
 
 #slide(title: "Algorithme 2: Reranking (Cross-Encoder)")[
@@ -373,12 +373,6 @@
   4. *Prompt* : "Voici le contexte textuel [...] ET voici les relations connues : [...]".
 ]
 
-#slide(title: "GraphRAG : Le meilleur des deux mondes")[
-  *Idée* : Utiliser un Graphe de Connaissances (Knowledge Graph) en plus de l'index des embeddings.
-
-  - *Indexation* : Un LLM lit les documents et extrait les triplets `(Entité, Verbe, Entité')` pour construire un graphe (qui peut être géré par Neo4j).
-  - *Recherche* : On navigue dans le graphe pour trouver les réponses connectées.
-]
 
 #slide(title: "Exemple d'apport du Graphe")[
   *Question* : "Pourquoi Jules est-il suspect ?"
@@ -389,20 +383,18 @@
     2. Traverse `(Jules)-[:PORTE]->(Bague)`.
     3. Traverse `(Bague)-[:SYMBOLE]->(La Griffe)`.
     4. Traverse `(La Griffe)-[:TYPE]->(Voleurs)`.
-    $=>$ Le LLM "voit" le chemin et déduit que Jules est lié aux voleurs.
+    $=>$ Le LLM a accès au chemin (inclus dans le contexte) et déduit que Jules est lié aux voleurs.
 ]
 
 // --- Section 2.3 : Mise en œuvre ---
 
-#title-slide[
-  Mise en œuvre et Outils
-]
 
-#slide(title: "Les Frameworks")[
-  Pour ne pas réinventer la roue :
+#slide(title: "Les outils")[
+  Ne pas réinventer la roue :
 
-  - *LangChain* : Très populaire, "glue" pour assembler les briques.
-  - *LlamaIndex* : Spécialisé dans la gestion de données pour LLM (Connecteurs, Index Vectoriels, Index Graphes).
+  - *LangChain* : très populaire, pour assembler des briques LLM et des outils.
+  - *LlamaIndex* : spécialisé dans la gestion de données pour LLM (Connecteurs, Index Vectoriels, Index Graphes).
+  - *HuggingFace* : incontournable pour les modèles et datasets (dont les encoders).
 ]
 
 #slide(title: "Exemple avec LlamaIndex (Voir `rag_graph.py`)")[
