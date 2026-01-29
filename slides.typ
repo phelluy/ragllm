@@ -21,11 +21,11 @@
 // ==========================================
 
 #title-slide[
-  Bases de Données
+  Bases de Données SQL
 ]
 
 // --- Section 1.1 : SQL ---
-#slide(title: "1. Bases de Données Relationnelles (SQL)")[
+#slide(title: "Bases de Données Relationnelles (SQL)")[
   *Structure en Tables*
   - Les données sont organisées en *tables* (lignes et colonnes).
   - Schéma rigide : chaque colonne a un type défini.
@@ -78,7 +78,7 @@
 
 // --- Section 1.2 : NoSQL Document (MongoDB) ---
 #title-slide[
-  2. NoSQL Orienté Document (MongoDB)
+  NoSQL: documents et graphes
 ]
 
 #slide(title: "Approche Document")[
@@ -91,7 +91,7 @@
   - Performance en lecture
 ]
 
-#slide(title: "Exemple JSON (Miroir du SQL)")[
+#slide(title: "Exemple JSON (vétérinaire)")[
   ```json
   {
     "id": 1,
@@ -154,11 +154,6 @@
   )
 ]
 
-// --- Section 1.3 : NoSQL Graph (Neo4j) ---
-#title-slide[
-  3. NoSQL Orienté Graphe (Neo4j)
-]
-
 #slide(title: "Pourquoi le Graphe ?")[
   - *Le monde est interconnecté*.
   - Les relations sont aussi importantes que les données elles-mêmes.
@@ -167,6 +162,9 @@
 ]
 
 #slide(title: "Modèle de Données Graphe")[
+  - Parfois, les relations sont aussi importantes que les données elles-mêmes.
+  - Dans le modèle SQL, les relations (tables) sont souvent peu nombreuses par rapport aux données.
+  - Dans le modèle Graphe, les relations sont généralement aussi nombreuses que les données.
   - *Nœuds (Nodes)* : Les entités (ex: `Personne`, `Animal`).
   - *Relations (Edges)* : Les liens (ex: `POSSEDE`, `AIME`, `EST_AMIS_AVEC`).
   - *Propriétés* : Clé-valeur sur les nœuds ET les relations.
@@ -177,7 +175,7 @@
 ]
 
 #slide(title: "Le Langage Cypher")[
-  - SQL est pour les tables, *Cypher* est pour les graphes.
+  - Lagngage SQL: requêtes sur des tables, *Cypher*: requête sur des graphes.
   - Syntaxe visuelle (ASCII-Art).
   - Requêtes basées sur le filtrage par motif (_pattern matching_).
 
@@ -193,7 +191,7 @@
   Trouver les connexions indirectes (Amis d'amis).
 
   ```cypher
-  MATCH (p:Personne)-[:AMI_AVEC*2..3]->(p2:Personne)
+  MATCH (p:Personne)-[:AMI_AVEC]->(ami)-[:AMI_AVEC]->(p2:Personne)
   RETURN p.nom, p2.nom
   ```
 
@@ -224,32 +222,29 @@
   ```
 ]
 
-#slide(title: "Transition vers le RAG")[
-  *Pourquoi parler de bases de données pour l'IA ?*
 
-  - Les LLM ont besoin de *contexte* (mémoire).
-  - Le RAG (Retrieval Augmented Generation) consiste à aller chercher ce contexte dans une base de données.
-  - Le choix de la base (Vectorielle, Graphe, SQL) impacte la qualité des réponses de l'IA.
+#title-slide[
+  RAG - Retrieval Augmented Generation
+]
+
+#slide(title: "Pourquoi le RAG (Retrieval Augmented Generation) ?")[
+  Les LLM sont impressionnants mais :
+  1. *Connaissances figées* : Ils ne savent rien après leur date d'entraînement.
+  2. *Hallucinations* : Ils inventent des faits s'ils ne savent pas, ne citent pas leurs sources ou en inventent de nouvelles.
+  3. *Données limitées* : Ils ne connaissent pas les documents non publics.
+  4. *Contexte borné* : Les LLM traitent un contexte contraint en taille.
+
+  - Le RAG  consiste à extraire d'une base de données (qui peut être énorme) le contexte sourcé et pertinent pour la question posée, en respectant la contrainte de taille.
+  - Le choix du système de requêtes (texte, embedding, SQL, JSON, graphe, _etc._) impacte la qualité des réponses de l'IA.
 ]
 
 // ==========================================
 // PARTIE 2 : RAG et LLM
 // ==========================================
 
-#title-slide[
-  Partie 2 : RAG - Retrieval Augmented Generation
-]
 
-// --- Section 2.1 : Fondamentaux du RAG ---
-#slide(title: "Le Problème des LLM")[
-  Les LLM (ChatGPT, Llama, etc.) sont impressionnants mais :
-  1. *Connaissances figées* : Ils ne savent rien après leur date d'entraînement.
-  2. *Hallucinations* : Ils inventent des faits s'ils ne savent pas, ne citent pas leurs sources ou en inventent de nouvelles.
-  3. *Données limitées* : Ils ne connaissent pas les documents non publics.
-]
-
-#slide(title: "Architecture RAG (Retrieval-Augmented Generation)")[
-  *Principe* : Ne pas tout apprendre au modèle, mais lui fournir des "antisèches" (contexte) au moment de répondre.
+#slide(title: "Architecture RAG vectoriel")[
+  *Principe* : Utiliser un petit réseau de neurones pour extraire du sens dans la couche cachée d'embeddings (base de données vectorielle).
 
   1. *Indexation (Offline)* :
     #align(center)[`Documentation -> Chunking -> Embedding -> Base de données Vectorielle`]
@@ -265,11 +260,11 @@
 
 #slide(title: "Embeddings : Définition Formelle")[
   Soit  $cal(T)$ l'espace des textes, c'est à dire $RR^(N_V times L)$, où $N_V$ est le nombre de tokens dans le vocabulaire et $L$ la longueur des phrases à analyser.
-  Un modèle d'embedding est une fonction paramétrée par des poids $w$:
+  Un modèle d'embedding est un RN de transformeurs avec des poids $w$:
   $ E_(w) : cal(T) arrow.r RR^D $
   où $D$ est la dimension (ex: 384, 1024).
 
-  *Propriété fondamentale* :
+  *Propriété recherchée* :
   Si deux textes $t_1$ et $t_2$ sont sémantiquement proches, alors leur *similarité cosinus* est proche de 1.
 
   $ "sim"(t_1, t_2) = cos(E_(w)(t_1), E_(w)(t_2)) = frac(E_(w)(t_1) dot E_(w)(t_2), ||E_(w)(t_1)|| ||E_(w)(t_2)||) $
@@ -292,13 +287,13 @@
   On dispose d'une base de chunks de documentation $cal(D) = {d_1, ..., d_N}$.
 
   1. *Indexation (Offline)* :
-    $ forall i, v_i = E_(w)(d_i) in RR^D $ (Stockés dans une base vectorielle, ex: FAISS).
+    $ forall i, v_i = E_(w)(d_i) in RR^D $ (Stockés dans une base vectorielle: on garde le lien entre $d_i$ et $v_i$).
 
   2. *Recherche (Online)* :
     Pour une requête $q$, on calcule $u = E_(w)(q)$.
-    On cherche les $k$ indices $i$ maximisant $u dot v_i$.
+    On cherche les $k$ indices $i$ maximisant $"sim"(u, v_i)$.
 
-  $=>$ Recherche des $k$ plus proches voisins (k-NN). Rapide mais ignore les interactions fines entre $q$ et $d_i$.
+  3. *Augmentation (Online)* : On ajoute les documents correspondants à ces indices dans le contexte.
 ]
 
 #slide(title: "Pipeline RAG Implémenté (Voir `rag_demo.py`)")[
@@ -321,16 +316,28 @@
 ]
 
 
+#slide(title: "Limites du Bi-Encoder (Vecteurs)")[
+  Le modèle vectoriel ("Bi-Encoder") compresse chaque phrase *séparément*. Il perd les nuances syntaxiques fines.
+
+  *Exemple piège* :
+  - *Question* ($q$) : "Qui a mangé la souris ?"
+  - *Doc 1* ($d_1$) : "Le python a mangé la souris." (Utile)
+  - *Doc 2* ($d_2$) : "Une fois, une souris a mangé un python." (Anecdotique)
+
+  $=>$ Le Bi-Encoder va exprimer une forte similarité entre $d_1$ et $d_2$ (mêmes mots clés).
+  $=>$ Nécessité d'un *Cross-Encoder* pour inspecter les deux phrases ensemble et détecter l'inversion.
+]
+
 #slide(title: "Algorithme 2: Reranking (Cross-Encoder)")[
-  Le Bi-Encoder compresse tout le sens dans un seul vecteur (goulot d'étranglement).
-  Pour plus de précision, on utilise un modèle de *Reranking* $R_(w)$ qui prend *deux* textes en entrée :
+  L'Encoder compresse tout le sens dans un seul vecteur. Calcul rapide de la similarité, mais pertinence parfois insuffisante.
+  Pour plus de précision, on utilise un modèle de *Reranking* $R_(w)$ (réseau de neurones plus gros) qui prend *deux* textes en entrée :
 
   $ R_(w) : cal(T) times cal(T) arrow.r [0, 1] $
   $ s_(i) = R_(w)(q, d_i) $ (Score de pertinence)
 
   *Pipeline Complet* :
-  1. *Retrieve* : Le Bi-Encoder sélectionne $K approx 100$ candidats (rapide).
-  2. *Rerank* : Le Cross-Encoder re-calcule le score précis pour ces $K$ candidats (lent).
+  1. *Retrieve* : L'Encoder sélectionne $K approx 100$ candidats (rapide).
+  2. *Rerank* : Le Cross-Encoder re-calcule un score plus précis pour ces $K$ candidats (lent).
   3. *Top-k* : On garde les $k approx 5$ meilleurs pour le LLM.
 ]
 
